@@ -10,6 +10,7 @@ Thread tuzilmasi:
 
 import logging
 import logging.handlers
+import os
 import sys
 import threading
 from pathlib import Path
@@ -57,16 +58,23 @@ def main() -> None:
 
     icon = create_icon(app, on_settings=on_settings, on_quit=quit_app)
 
-    if no_ui:
-        icon.run()  # asosiy thread'da bloklanadi, webview umuman yaratilmaydi
-    else:
-        icon.run_detached()
-        ui.run(app)  # bloklanadi; quit_app yoki oyna destroy bo'lganda qaytadi
-        icon.stop()
+    try:
+        if no_ui:
+            icon.run()  # asosiy thread'da bloklanadi, webview yaratilmaydi
+        else:
+            icon.run_detached()
+            ui.run(app)  # bloklanadi; quit_app yoki oyna destroy bo'lganda qaytadi
+            icon.stop()
+    except KeyboardInterrupt:
+        log.info("Ctrl+C qabul qilindi")
 
     app.stop_event.set()
     worker.join(timeout=3)
     log.info("GestureDJ to'xtadi")
+    # WebView2/pystray ortda non-daemon thread qoldirishi mumkin -
+    # toza log'dan keyin jarayonni kafolatli tugatamiz
+    logging.shutdown()
+    os._exit(0)
 
 
 if __name__ == "__main__":

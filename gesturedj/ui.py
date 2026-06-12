@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 HTML_PATH = Path(__file__).resolve().parent / "web" / "index.html"
 
 _window: webview.Window | None = None
+_quitting = False  # True bo'lsa closing handler yopishga ruxsat beradi
 
 
 class Api:
@@ -52,7 +53,13 @@ def _eval(js: str) -> None:
 
 
 def _on_closing():
-    """X bosilganda oynani yashiramiz, ilova tray'da ishlashda davom etadi."""
+    """X bosilganda oynani yashiramiz, ilova tray'da ishlashda davom etadi.
+
+    Muhim: destroy() ham shu hodisani chaqiradi - chiqayotganda (_quitting)
+    yopishni bekor qilmaslik kerak, aks holda ilova hech qachon o'chmaydi.
+    """
+    if _quitting:
+        return True
     if _window is not None:
         _eval("setPolling(false)")  # yashirin oyna CPU yemasin
         _window.hide()
@@ -85,5 +92,11 @@ def show() -> None:
 
 
 def destroy() -> None:
+    global _quitting
+    _quitting = True
     if _window is not None:
+        try:
+            _window.events.closing -= _on_closing
+        except Exception:
+            pass
         _window.destroy()
