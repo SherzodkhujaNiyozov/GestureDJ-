@@ -14,13 +14,20 @@ MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/hand_landmarker/"
     "hand_landmarker/float16/latest/hand_landmarker.task"
 )
-MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "hand_landmarker.task"
+_REL = Path("models") / "hand_landmarker.task"
 
 
 def ensure_model() -> str:
-    if not MODEL_PATH.exists():
+    from .paths import app_dir, resource_dir
+
+    bundled = resource_dir() / _REL  # exe ichiga qadoqlangan nusxa
+    if bundled.exists():
+        return str(bundled)
+
+    local = app_dir() / _REL
+    if not local.exists():
         log.info("Model yuklab olinmoqda: %s", MODEL_URL)
-        MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
-        urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
-        log.info("Model saqlandi: %s", MODEL_PATH)
-    return str(MODEL_PATH)
+        local.parent.mkdir(parents=True, exist_ok=True)
+        urllib.request.urlretrieve(MODEL_URL, local)
+        log.info("Model saqlandi: %s", local)
+    return str(local)

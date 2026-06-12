@@ -7,16 +7,16 @@ bosilganda destroy() chaqiriladi va webview.start() qaytadi.
 """
 
 import logging
-from pathlib import Path
 
 import webview
 
-from . import config
+from . import autostart, config
 from .app import GestureApp
+from .paths import resource_dir
 
 log = logging.getLogger(__name__)
 
-HTML_PATH = Path(__file__).resolve().parent / "web" / "index.html"
+HTML_PATH = resource_dir() / "gesturedj" / "web" / "index.html"
 
 _window: webview.Window | None = None
 _quitting = False  # True bo'lsa closing handler yopishga ruxsat beradi
@@ -42,6 +42,13 @@ class Api:
     def reset_config(self) -> dict:
         config.reset()
         return config.current()
+
+    def get_autostart(self) -> bool:
+        return autostart.is_enabled()
+
+    def set_autostart(self, enabled: bool) -> bool:
+        autostart.set_enabled(bool(enabled))
+        return autostart.is_enabled()
 
 
 def _eval(js: str) -> None:

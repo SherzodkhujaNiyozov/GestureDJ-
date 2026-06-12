@@ -7,11 +7,12 @@ orqali config.json'ga yozadi - kod o'zgarmaydi.
 
 import json
 import logging
-from pathlib import Path
+
+from .paths import app_dir
 
 log = logging.getLogger(__name__)
 
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.json"
+CONFIG_PATH = app_dir() / "config.json"
 
 DEFAULTS: dict = {
     # Kamera

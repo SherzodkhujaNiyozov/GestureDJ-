@@ -13,13 +13,13 @@ import logging.handlers
 import os
 import sys
 import threading
-from pathlib import Path
 
 from . import ui
 from .app import GestureApp
+from .paths import app_dir
 from .tray import create_icon
 
-LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
+LOG_DIR = app_dir() / "logs"
 
 
 def _setup_logging() -> None:

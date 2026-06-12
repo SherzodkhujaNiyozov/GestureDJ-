@@ -132,6 +132,15 @@
   input[type=range]:hover::-webkit-slider-thumb { background: var(--green); }
   input[type=range]:focus-visible { box-shadow: 0 0 0 2px var(--accent-soft); }
 
+  .autostart {
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+    margin-top: 6px; padding: 10px 12px; border-radius: 10px;
+    background: var(--surface-2); font-size: 13px;
+    transition: background-color 200ms;
+  }
+  .autostart:hover { background: rgba(165,180,252,.15); }
+  .autostart input { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+
   .btn-row { display: flex; gap: 10px; margin-top: 18px; }
   button {
     font-family: inherit; font-size: 13px; font-weight: 600;
@@ -236,6 +245,10 @@
       Sozlamalar
     </h2>
     <div id="settings"></div>
+    <label class="autostart">
+      <input type="checkbox" id="autostartChk">
+      <span>Windows bilan ishga tushsin</span>
+    </label>
     <div class="btn-row">
       <button class="btn-save" id="btnSave">Saqlash</button>
       <button class="btn-reset" id="btnReset">Defaultga qaytarish</button>
@@ -362,6 +375,12 @@ async function init() {
   setMark("beakMark", cfg.BEAK_CLUSTER_MAX, 1.0);
   buildGestureList(null);
   setPolling(true);  // oyna ochiq holda yuklandi; yashirilganda Python o'chiradi
+
+  const chk = el("autostartChk");
+  chk.checked = await window.pywebview.api.get_autostart();
+  chk.addEventListener("change", async () => {
+    chk.checked = await window.pywebview.api.set_autostart(chk.checked);
+  });
 
   el("btnSave").addEventListener("click", async () => {
     const values = {};

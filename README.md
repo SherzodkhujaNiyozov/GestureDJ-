@@ -1,7 +1,17 @@
-# GestureDJ 🎚️🖐️
+# GestureDJ
+
+> Control your PC's audio with hand gestures — webcam + MediaPipe, lives in
+> the Windows system tray. Pinch to set volume, fist to play/pause, beak to
+> mute. 100% local, no external APIs.
 
 Qo'l ishoralari bilan Windows tizim ovozini boshqaruvchi desktop ilova.
 Webcam orqali qo'lingizni kuzatadi (MediaPipe), tizim tray'ida ishlaydi.
+To'liq lokal — internetga ma'lumot yubormaydi, tashqi API ishlatmaydi.
+
+<!-- TODO: demo GIF shu yerga (ScreenToGif bilan yozib oling) -->
+
+**Texnologiyalar:** Python · MediaPipe Tasks (HandLandmarker) · OpenCV ·
+pycaw · pystray · pywebview
 
 ## Ishoralar
 
@@ -29,6 +39,8 @@ python -m venv .venv
 .\.venv\Scripts\python run.py
 ```
 
+Diagnostika uchun sozlamalar oynasisiz rejim: `python run.py --no-ui`
+
 Ilova tray'da paydo bo'ladi. Tray menyusidan:
 - **Sozlamalar** (yoki ikonkaga ikki marta bosish) — jonli kalibrlash va
   sozlamalar oynasi: hozirgi gesture, volume, pinch/beak metrikalari,
@@ -38,6 +50,8 @@ Ilova tray'da paydo bo'ladi. Tray menyusidan:
 - **Chiqish** — ilovani yopish
 
 Sozlamalar oynasini yopsangiz ilova tray'da ishlashda davom etadi.
+Sozlamalar oynasida **"Windows bilan ishga tushsin"** belgisi bor —
+yoqsangiz ilova tizim bilan birga avtomatik ochiladi.
 Loglar `logs/gesturedj.log` faylida.
 
 ## Texnologiyalar
@@ -51,13 +65,21 @@ Loglar `logs/gesturedj.log` faylida.
 
 ```powershell
 .\.venv\Scripts\pip install pyinstaller
-.\.venv\Scripts\pyinstaller --noconsole --name GestureDJ `
-  --collect-all mediapipe --collect-all cv2 `
+.\.venv\Scripts\pyinstaller --noconfirm --noconsole --name GestureDJ `
+  --icon assets\icon.ico --collect-all mediapipe `
+  --add-data "gesturedj\web;gesturedj\web" --add-data "models;models" `
   run.py
 ```
 
-Natija: `dist\GestureDJ\GestureDJ.exe` (onedir rejimi tavsiya etiladi —
-onefile sekin ochiladi).
+Natija: `dist\GestureDJ\` papkasi — `GestureDJ.exe` ni ishga tushiring.
+Model va web UI exe ichiga qadoqlanadi; `config.json` va `logs/` exe
+yonida yaratiladi.
+
+Eslatmalar:
+- onedir rejimi ataylab tanlangan (onefile har ochilishda sekin)
+- Windows Defender yangi exe'larni ba'zan shubhali deb belgilashi mumkin —
+  bu PyInstaller'ning ma'lum false-positive muammosi
+- Xato bo'lsa `logs/gesturedj.log` ga qarang (konsol yo'q rejimda yagona manba)
 
 ## Arxitektura
 
