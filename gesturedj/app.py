@@ -109,6 +109,7 @@ class GestureApp:
                 if self.show_preview:
                     if lms is not None:
                         self._draw_hand(frame, lms)
+                        self._draw_debug(frame, lms, gesture, gesture_start)
                     self._draw_hud(frame)
                     cv2.imshow("GestureDJ", frame)
                     cv2.waitKey(1)
@@ -162,6 +163,32 @@ class GestureApp:
             cv2.line(frame, pts[a], pts[b], (0, 200, 0), 2)
         for p in pts:
             cv2.circle(frame, p, 4, (0, 100, 255), -1)
+
+    @staticmethod
+    def _draw_debug(frame, lms, gesture: str | None, gesture_start: dict[str, float]) -> None:
+        """Kalibrlash paneli: barmoqlar holati, pinch qiymati, hold jarayoni."""
+        h = frame.shape[0]
+        names = ["thumb", "index", "middle", "ring", "pinky"]
+        ext = gestures.fingers_extended(lms)
+        for i, (name, on) in enumerate(zip(names, ext)):
+            color = (0, 200, 0) if on else (60, 60, 200)
+            cv2.putText(frame, name, (10, h - 110 + i * 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+        pinch = gestures.pinch_ratio(lms)
+        vol_pose = gestures.is_volume_pose(lms)
+        cv2.putText(frame, f"pinch: {pinch:.2f}  (min={config.PINCH_MIN} max={config.PINCH_MAX})",
+                    (120, h - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
+        cv2.putText(frame, f"gesture: {gesture or '-'}   volume_pose: {'HA' if vol_pose else 'yoq'}",
+                    (120, h - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
+
+        # Hold progress (faollashtirish/o'chirish qancha qoldi)
+        if gesture in gesture_start:
+            need = config.ACTIVATE_HOLD_SEC if gesture == gestures.OPEN_PALM else config.DEACTIVATE_HOLD_SEC
+            progress = min(1.0, (time.monotonic() - gesture_start[gesture]) / need)
+            cv2.rectangle(frame, (120, h - 80), (320, h - 65), (80, 80, 80), 1)
+            cv2.rectangle(frame, (120, h - 80), (120 + int(200 * progress), h - 65),
+                          (0, 200, 0), -1)
 
     def _draw_hud(self, frame) -> None:
         color = (0, 200, 0) if self.state == ACTIVE else (128, 128, 128)
