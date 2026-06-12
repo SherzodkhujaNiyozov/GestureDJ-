@@ -113,10 +113,8 @@ class GestureApp:
                         volume_ema.reset()
                         # Bir martalik amallar (gesture ushlab turilganda 1 marta)
                         for g, action in (
-                            (gestures.OPEN_PALM, media.play_pause),          # 🖐️ play
-                            (gestures.FIST, media.play_pause),               # ✊ pause
-                            (gestures.BEAK, lambda: audio.set_mute(True)),       # 🤌 mute
-                            (gestures.BEAK_OPEN, lambda: audio.set_mute(False)),  # 🤌 ochilgani - unmute
+                            (gestures.FIST, media.play_pause),  # ✊ play/pause toggle
+                            (gestures.BEAK, lambda: audio.set_mute(not audio.is_muted())),  # 🤌 mute toggle
                         ):
                             if g not in fired and self._held(g, gesture_start, config.ACTION_HOLD_SEC):
                                 action()
@@ -197,8 +195,8 @@ class GestureApp:
         cv2.putText(frame, f"pinch: {pinch:.2f} (min={config.PINCH_MIN} max={config.PINCH_MAX})  "
                            f"volume_pose: {'HA' if vol_pose else 'yoq'}",
                     (120, h - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
-        cv2.putText(frame, f"spread: {gestures.spread_gap(lms):.2f} (<{config.BEAK_OPEN_GAP_MAX} + pinch>{config.BEAK_OPEN_PINCH_MIN} = unmute)  "
-                           f"beak: {gestures.beak_cluster(lms):.2f} (<{config.BEAK_CLUSTER_MAX} mute)",
+        cv2.putText(frame, f"spread: {gestures.spread_gap(lms):.2f}  "
+                           f"beak: {gestures.beak_cluster(lms):.2f} (<{config.BEAK_CLUSTER_MAX} = mute toggle)",
                     (120, h - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
         cv2.putText(frame, f"gesture: {gesture or '-'}",
                     (120, h - 70), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 255), 2)

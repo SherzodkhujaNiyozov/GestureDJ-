@@ -7,10 +7,9 @@ MediaPipe landmark indekslari:
 Ishoralar:
   THUMBS_UP - faqat bosh barmoq ochiq, tepaga qaragan -> faollashtirish
   INDEX_UP  - faqat ko'rsatkich barmoq ochiq           -> standby'ga qaytish
-  OPEN_PALM - kaft ochiq                                -> play
-  FIST      - musht                                     -> pause
-  BEAK      - barcha barmoq uchlari jips (🤌 yopiq)    -> mute
-  BEAK_OPEN - 🤌 ochilgani: 4 barmoq jips, bosh barmoq uzoqda -> unmute
+  FIST      - musht                                     -> play/pause toggle
+  BEAK      - barcha barmoq uchlari jips (🤌)          -> mute/unmute toggle
+  OPEN_PALM - kaft ochiq (hozircha amal biriktirilmagan)
   volume pose - bosh+ko'rsatkich ochiq, qolganlari yopiq -> pinch bilan volume
 """
 
@@ -32,7 +31,6 @@ INDEX_UP = "index_up"
 OPEN_PALM = "open_palm"
 FIST = "fist"
 BEAK = "beak"
-BEAK_OPEN = "beak_open"
 
 
 def _dist(a, b) -> float:
@@ -126,18 +124,6 @@ def classify(lms) -> str | None:
         and beak_reach(lms) > config.BEAK_MIN_REACH
     ):
         return BEAK
-
-    # BEAK_OPEN (🤌 ochilgani): 4 barmoq cho'zilgan va JIPS (orasi tor),
-    # bosh barmoq esa ko'rsatkichdan uzoqlashgan. Barmoq aniqlash xatosiga
-    # chidamli bo'lishi uchun index + kamida 2 ta boshqa barmoq yetarli.
-    if (
-        index
-        and (middle + ring + pinky) >= 2
-        and spread_gap(lms) < config.BEAK_OPEN_GAP_MAX
-        and pinch_ratio(lms) > config.BEAK_OPEN_PINCH_MIN
-        and beak_reach(lms) > config.BEAK_MIN_REACH
-    ):
-        return BEAK_OPEN
 
     if index and not thumb and not middle and not ring and not pinky:
         return INDEX_UP
