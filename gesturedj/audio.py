@@ -35,7 +35,16 @@ class AudioController:
             self._endpoint = self._connect()
             return self._endpoint.GetMasterVolumeLevelScalar()
 
-    def toggle_mute(self) -> bool:
-        muted = bool(self._endpoint.GetMute())
-        self._endpoint.SetMute(not muted, None)
-        return not muted
+    def set_mute(self, mute: bool) -> None:
+        try:
+            self._endpoint.SetMute(mute, None)
+        except OSError:
+            self._endpoint = self._connect()
+            self._endpoint.SetMute(mute, None)
+
+    def is_muted(self) -> bool:
+        try:
+            return bool(self._endpoint.GetMute())
+        except OSError:
+            self._endpoint = self._connect()
+            return bool(self._endpoint.GetMute())

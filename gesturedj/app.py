@@ -13,7 +13,7 @@ import mediapipe as mp
 from mediapipe.tasks.python import BaseOptions
 from mediapipe.tasks.python import vision
 
-from . import config, gestures
+from . import config, gestures, media
 from .audio import AudioController
 from .model import ensure_model
 from .smoothing import EMA
@@ -60,6 +60,7 @@ class GestureApp:
         )
 
         gesture_start: dict[str, float] = {}  # ishora qachondan beri ushlab turilibdi
+        fired: set[str] = set()  # bir ishora uchun amal faqat bir marta bajarilsin
         preview_open = False
         start_time = time.monotonic()
 
@@ -82,17 +83,23 @@ class GestureApp:
 
                 gesture = gestures.classify(lms) if lms else None
                 self._track_hold(gesture, gesture_start)
+                fired.intersection_update(gesture_start)  # ishora qo'yib yuborilsa qayta otishga ruxsat
 
                 if self.state == STANDBY:
-                    if self._held(gestures.OPEN_PALM, gesture_start, config.ACTIVATE_HOLD_SEC):
+                    # 👍 thumbs-up -> faollashtirish
+                    if self._held(gestures.THUMBS_UP, gesture_start, config.ACTIVATE_HOLD_SEC):
                         self._set_state(ACTIVE)
                         gesture_start.clear()
+                        fired.clear()
                         volume_ema.reset()
                 else:  # ACTIVE
-                    if self._held(gestures.FIST, gesture_start, config.DEACTIVATE_HOLD_SEC):
+                    # 👆 faqat ko'rsatkich barmoq -> trayga qaytish (standby)
+                    if self._held(gestures.INDEX_UP, gesture_start, config.DEACTIVATE_HOLD_SEC):
                         self._set_state(STANDBY)
                         gesture_start.clear()
+                        fired.clear()
                     elif lms is not None and gestures.is_volume_pose(lms):
+                        # 🤏 pinch -> volume (uzluksiz)
                         ratio = gestures.pinch_ratio(lms)
                         target = self._ratio_to_volume(ratio)
                         smoothed = volume_ema.update(target)
@@ -104,6 +111,16 @@ class GestureApp:
                             self.last_volume = smoothed
                     else:
                         volume_ema.reset()
+                        # Bir martalik amallar (gesture ushlab turilganda 1 marta)
+                        for g, action in (
+                            (gestures.OPEN_PALM, media.play_pause),          # 🖐️ play
+                            (gestures.FIST, media.play_pause),               # ✊ pause
+                            (gestures.BEAK, lambda: audio.set_mute(True)),   # 🤌 mute
+                            (gestures.SPREAD, lambda: audio.set_mute(False)),  # 🖐️✨ unmute
+                        ):
+                            if g not in fired and self._held(g, gesture_start, config.ACTION_HOLD_SEC):
+                                action()
+                                fired.add(g)
 
                 # --- Preview oynasi (tray menyusidan yoqiladi) ---
                 if self.show_preview:
@@ -177,22 +194,29 @@ class GestureApp:
 
         pinch = gestures.pinch_ratio(lms)
         vol_pose = gestures.is_volume_pose(lms)
-        cv2.putText(frame, f"pinch: {pinch:.2f}  (min={config.PINCH_MIN} max={config.PINCH_MAX})",
+        cv2.putText(frame, f"pinch: {pinch:.2f} (min={config.PINCH_MIN} max={config.PINCH_MAX})  "
+                           f"volume_pose: {'HA' if vol_pose else 'yoq'}",
                     (120, h - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
-        cv2.putText(frame, f"gesture: {gesture or '-'}   volume_pose: {'HA' if vol_pose else 'yoq'}",
+        cv2.putText(frame, f"spread: {gestures.spread_gap(lms):.2f} (>={config.SPREAD_GAP_MIN} unmute)  "
+                           f"beak: {gestures.beak_cluster(lms):.2f} (<{config.BEAK_CLUSTER_MAX} mute)",
                     (120, h - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
+        cv2.putText(frame, f"gesture: {gesture or '-'}",
+                    (120, h - 70), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 255), 2)
 
-        # Hold progress (faollashtirish/o'chirish qancha qoldi)
+        # Hold progress (amal bajarilishiga qancha qoldi)
         if gesture in gesture_start:
-            need = config.ACTIVATE_HOLD_SEC if gesture == gestures.OPEN_PALM else config.DEACTIVATE_HOLD_SEC
+            need = {
+                gestures.THUMBS_UP: config.ACTIVATE_HOLD_SEC,
+                gestures.INDEX_UP: config.DEACTIVATE_HOLD_SEC,
+            }.get(gesture, config.ACTION_HOLD_SEC)
             progress = min(1.0, (time.monotonic() - gesture_start[gesture]) / need)
-            cv2.rectangle(frame, (120, h - 80), (320, h - 65), (80, 80, 80), 1)
-            cv2.rectangle(frame, (120, h - 80), (120 + int(200 * progress), h - 65),
+            cv2.rectangle(frame, (120, h - 100), (320, h - 85), (80, 80, 80), 1)
+            cv2.rectangle(frame, (120, h - 100), (120 + int(200 * progress), h - 85),
                           (0, 200, 0), -1)
 
     def _draw_hud(self, frame) -> None:
         color = (0, 200, 0) if self.state == ACTIVE else (128, 128, 128)
-        label = "FAOL" if self.state == ACTIVE else "KUTISH (ochiq kaftni 1s ko'rsating)"
+        label = "FAOL" if self.state == ACTIVE else "KUTISH (thumbs-up'ni 1s ko'rsating)"
         cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
         if self.state == ACTIVE and self.last_volume is not None:
             cv2.putText(

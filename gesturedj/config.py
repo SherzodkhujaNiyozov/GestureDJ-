@@ -10,8 +10,17 @@ ACTIVE_FPS = 20
 STANDBY_FPS = 5
 
 # Ishorani qancha vaqt ushlab turish kerak (sekund)
-ACTIVATE_HOLD_SEC = 1.0   # ochiq kaft -> faollashtirish
-DEACTIVATE_HOLD_SEC = 1.0  # musht -> standby
+ACTIVATE_HOLD_SEC = 1.0    # thumbs-up -> faollashtirish
+DEACTIVATE_HOLD_SEC = 1.0  # ko'rsatkich barmoq (index_up) -> standby
+ACTION_HOLD_SEC = 0.5      # play/pause/mute/unmute uchun ushlab turish
+
+# BEAK (mute, barmoq uchlari jips) aniqlash chegaralari
+BEAK_CLUSTER_MAX = 0.30  # uchlar markazdan shu nisbatdan yaqin bo'lsa - jips
+BEAK_MIN_REACH = 1.10    # o'rta barmoq uchi bilakdan shu nisbatdan uzoq (mushtdan farqi)
+
+# SPREAD (unmute) vs OPEN_PALM (play): qo'shni barmoq uchlari orasidagi
+# o'rtacha masofa shu qiymatdan katta bo'lsa - SPREAD
+SPREAD_GAP_MIN = 0.55
 
 # MediaPipe
 MIN_DETECTION_CONFIDENCE = 0.7

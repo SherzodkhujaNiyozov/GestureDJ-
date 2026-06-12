@@ -3,19 +3,36 @@
 MediaPipe landmark indekslari:
   0=wrist, 4=thumb_tip, 8=index_tip, 12=middle_tip, 16=ring_tip, 20=pinky_tip
   Har bir barmoq: MCP -> PIP -> DIP -> TIP
+
+Ishoralar:
+  THUMBS_UP - faqat bosh barmoq ochiq, tepaga qaragan -> faollashtirish
+  INDEX_UP  - faqat ko'rsatkich barmoq ochiq           -> standby'ga qaytish
+  OPEN_PALM - kaft ochiq, barmoqlar bir-biriga yaqin   -> play
+  FIST      - musht                                     -> pause
+  BEAK      - barcha barmoq uchlari jips (🤌 yopiq)    -> mute
+  SPREAD    - barmoqlar keng yoyilgan                   -> unmute
+  volume pose - bosh+ko'rsatkich ochiq, qolganlari yopiq -> pinch bilan volume
 """
 
 import math
 
+from . import config
+
 WRIST = 0
-THUMB_TIP = 4
+THUMB_MCP, THUMB_TIP = 2, 4
 INDEX_MCP, INDEX_PIP, INDEX_TIP = 5, 6, 8
 MIDDLE_MCP, MIDDLE_PIP, MIDDLE_TIP = 9, 10, 12
 RING_PIP, RING_TIP = 14, 16
 PINKY_PIP, PINKY_TIP = 18, 20
 
+TIPS = [THUMB_TIP, INDEX_TIP, MIDDLE_TIP, RING_TIP, PINKY_TIP]
+
+THUMBS_UP = "thumbs_up"
+INDEX_UP = "index_up"
 OPEN_PALM = "open_palm"
 FIST = "fist"
+BEAK = "beak"
+SPREAD = "spread"
 
 
 def _dist(a, b) -> float:
@@ -48,25 +65,83 @@ def fingers_extended(lms) -> list[bool]:
     ]
 
 
-def classify(lms) -> str | None:
-    """Statik ishorani aniqlash: open_palm / fist / None."""
-    f = fingers_extended(lms)
-    if all(f):
-        return OPEN_PALM
-    if not any(f[1:]):  # 4 barmoq yopiq (bosh barmoq hisobga olinmaydi)
-        return FIST
-    return None
+# ----------------------------------------------------------------------
+# Kalibrlash uchun metrikalar (debug panelda ham ko'rsatiladi)
 
+def beak_cluster(lms) -> float:
+    """Barmoq uchlari markazdan o'rtacha qancha uzoq (kaft o'lchamiga nisbatan).
 
-def is_volume_pose(lms) -> bool:
-    """Volume boshqarish holati: middle+ring+pinky ochiq turishi shart.
-
-    Bu tasodifiy chimdishlarda volume o'zgarib ketishining oldini oladi.
+    Kichik qiymat = uchlar jips (🤌). BEAK uchun config.BEAK_CLUSTER_MAX dan
+    kichik bo'lishi kerak.
     """
-    f = fingers_extended(lms)
-    return f[2] and f[3] and f[4]
+    size = hand_size(lms)
+    cx = sum(lms[t].x for t in TIPS) / 5
+    cy = sum(lms[t].y for t in TIPS) / 5
+    return max(
+        math.hypot(lms[t].x - cx, lms[t].y - cy) for t in TIPS
+    ) / size
+
+
+def beak_reach(lms) -> float:
+    """O'rta barmoq uchi bilakdan qancha uzoqda. Mushtdan farqlash uchun:
+    BEAK'da barmoqlar oldinga cho'zilgan, mushtda kaftga yig'ilgan."""
+    return _dist(lms[WRIST], lms[MIDDLE_TIP]) / hand_size(lms)
+
+
+def spread_gap(lms) -> float:
+    """Qo'shni barmoq uchlari orasidagi o'rtacha masofa (kaft o'lchamiga
+    nisbatan). Katta = barmoqlar yoyilgan (SPREAD), kichik = jipslashgan
+    ochiq kaft (OPEN_PALM)."""
+    size = hand_size(lms)
+    gaps = [
+        _dist(lms[INDEX_TIP], lms[MIDDLE_TIP]),
+        _dist(lms[MIDDLE_TIP], lms[RING_TIP]),
+        _dist(lms[RING_TIP], lms[PINKY_TIP]),
+    ]
+    return sum(gaps) / len(gaps) / size
 
 
 def pinch_ratio(lms) -> float:
     """Bosh barmoq va ko'rsatkich barmoq uchlari orasidagi normalangan masofa."""
     return _dist(lms[THUMB_TIP], lms[INDEX_TIP]) / hand_size(lms)
+
+
+# ----------------------------------------------------------------------
+
+def is_volume_pose(lms) -> bool:
+    """Volume holati (1-rasm): bosh + ko'rsatkich ochiq, qolganlari yopiq."""
+    f = fingers_extended(lms)
+    return f[0] and f[1] and not f[2] and not f[3] and not f[4]
+
+
+def classify(lms) -> str | None:
+    """Statik ishorani aniqlash."""
+    f = fingers_extended(lms)
+    thumb, index, middle, ring, pinky = f
+
+    # BEAK birinchi tekshiriladi: uchlar jips bo'lsa barmoqlar "ochiq"
+    # ko'rinishi mumkin va OPEN_PALM bilan adashadi
+    if (
+        beak_cluster(lms) < config.BEAK_CLUSTER_MAX
+        and beak_reach(lms) > config.BEAK_MIN_REACH
+    ):
+        return BEAK
+
+    if index and not thumb and not middle and not ring and not pinky:
+        return INDEX_UP
+
+    # Thumbs-up: faqat bosh barmoq ochiq va uchi bilakdan tepada
+    if thumb and not index and not middle and not ring and not pinky:
+        if lms[THUMB_TIP].y < lms[WRIST].y:
+            return THUMBS_UP
+        return None
+
+    if index and middle and ring and pinky:
+        if spread_gap(lms) >= config.SPREAD_GAP_MIN:
+            return SPREAD
+        return OPEN_PALM
+
+    if not index and not middle and not ring and not pinky:
+        return FIST
+
+    return None

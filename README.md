@@ -7,9 +7,16 @@ Webcam orqali qo'lingizni kuzatadi (MediaPipe), tizim tray'ida ishlaydi.
 
 | Ishora | Vazifa |
 |--------|--------|
-| 🖐️ Ochiq kaft (1 soniya) | Boshqaruvni **faollashtirish** |
-| ✊ Musht (1 soniya) | Boshqaruvni **o'chirish** (standby) |
-| 🤏 Chimdish (middle/ring/pinky ochiq holda) | **Volume** — barmoqlar orasi qancha keng, ovoz shuncha baland |
+| 👍 Thumbs-up (1 soniya) | Boshqaruvni **faollashtirish** |
+| 👆 Faqat ko'rsatkich barmoq (1 soniya) | Boshqaruvni **o'chirish** (standby) |
+| 🤏 Bosh + ko'rsatkich barmoq ochiq, qolganlari yopiq | **Volume** — barmoqlar orasi qancha keng, ovoz shuncha baland |
+| 🖐️ Ochiq kaft (barmoqlar jips) | **Play/Pause** (media tugmasi) |
+| ✊ Musht | **Pause** (media tugmasi) |
+| 🤌 Barmoq uchlari jips | **Mute** |
+| 🖐️✨ Barmoqlar keng yoyilgan | **Unmute** |
+
+Eslatma: Windows'da play va pause uchun bitta umumiy toggle tugma bor
+(VK_MEDIA_PLAY_PAUSE), shuning uchun kaft ham musht ham shu toggle'ni bosadi.
 
 Standby rejimida ilova past FPS'da ishlaydi (CPU tejaladi) va faqat
 faollashtirish ishorasini kutadi.
