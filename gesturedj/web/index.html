@@ -174,7 +174,7 @@
   </svg>
   <div>
     <h1>GestureDJ</h1>
-    <div class="sub">Qo'l ishoralari bilan audio boshqaruv</div>
+    <div class="sub" id="subline">Qo'l ishoralari bilan audio boshqaruv</div>
   </div>
   <span id="badge" class="badge standby">KUTISH</span>
 </header>
@@ -337,6 +337,7 @@ async function poll() {
       el("volNum").textContent = (s.volume * 100).toFixed(0) + "%";
     }
     el("muteTag").className = "mute-tag" + (s.muted ? " on" : "");
+    if (s.fps) el("subline").textContent = "Qo'l ishoralari bilan audio boshqaruv · " + s.fps + " FPS";
 
     const m = [["pinch", 1.5], ["beak", 1.0], ["spread", 1.0]];
     for (const [k, max] of m) {
@@ -347,6 +348,12 @@ async function poll() {
   } catch (e) { /* api hali tayyor emas */ }
 }
 
+let pollTimer = null;
+function setPolling(on) {
+  if (on && !pollTimer) pollTimer = setInterval(poll, 200);
+  if (!on && pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
 async function init() {
   cfg = await window.pywebview.api.get_config();
   buildSettings();
@@ -354,7 +361,7 @@ async function init() {
   setMark("pinchMax", cfg.PINCH_MAX, 1.5);
   setMark("beakMark", cfg.BEAK_CLUSTER_MAX, 1.0);
   buildGestureList(null);
-  setInterval(poll, 150);
+  setPolling(true);  // oyna ochiq holda yuklandi; yashirilganda Python o'chiradi
 
   el("btnSave").addEventListener("click", async () => {
     const values = {};

@@ -10,6 +10,7 @@ Thread tuzilmasi:
 
 import logging
 import logging.handlers
+import sys
 import threading
 from pathlib import Path
 
@@ -33,9 +34,11 @@ def _setup_logging() -> None:
 
 
 def main() -> None:
+    no_ui = "--no-ui" in sys.argv  # diagnostika: sozlamalar oynasisiz (A/B test)
+
     _setup_logging()
     log = logging.getLogger(__name__)
-    log.info("GestureDJ ishga tushmoqda")
+    log.info("GestureDJ ishga tushmoqda%s", " (UI'siz rejim)" if no_ui else "")
 
     app = GestureApp()
     worker = threading.Thread(target=app.run, daemon=True)
@@ -43,15 +46,25 @@ def main() -> None:
 
     def quit_app():
         app.stop_event.set()
-        ui.destroy()  # webview siklini tugatadi -> main davom etadi
+        if not no_ui:
+            ui.destroy()  # webview siklini tugatadi -> main davom etadi
 
-    icon = create_icon(app, on_settings=ui.show, on_quit=quit_app)
-    icon.run_detached()
+    def on_settings():
+        if no_ui:
+            log.info("UI'siz rejimda sozlamalar oynasi yo'q")
+        else:
+            ui.show()
 
-    ui.run(app)  # bloklanadi; quit_app yoki oyna destroy bo'lganda qaytadi
+    icon = create_icon(app, on_settings=on_settings, on_quit=quit_app)
+
+    if no_ui:
+        icon.run()  # asosiy thread'da bloklanadi, webview umuman yaratilmaydi
+    else:
+        icon.run_detached()
+        ui.run(app)  # bloklanadi; quit_app yoki oyna destroy bo'lganda qaytadi
+        icon.stop()
 
     app.stop_event.set()
-    icon.stop()
     worker.join(timeout=3)
     log.info("GestureDJ to'xtadi")
 

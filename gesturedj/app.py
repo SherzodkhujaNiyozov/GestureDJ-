@@ -82,6 +82,7 @@ class GestureApp:
         preview_open = False
         start_time = time.monotonic()
         last_mute_check = 0.0
+        fps_count, fps_t0 = 0, time.monotonic()  # real FPS o'lchovi
 
         try:
             while not self.stop_event.is_set():
@@ -140,6 +141,16 @@ class GestureApp:
                                 action()
                                 fired.add(g)
                                 log.info("Amal bajarildi: %s (gesture=%s)", name, g)
+
+                # --- Real FPS (diagnostika: maqsadga yetyapmizmi) ---
+                fps_count += 1
+                if t0 - fps_t0 >= 5.0:
+                    real_fps = fps_count / (t0 - fps_t0)
+                    self.metrics["fps"] = round(real_fps, 1)
+                    target = config.ACTIVE_FPS if self.state == ACTIVE else config.STANDBY_FPS
+                    if self.state == ACTIVE and real_fps < target * 0.7:
+                        log.warning("Real FPS past: %.1f (maqsad %d)", real_fps, target)
+                    fps_count, fps_t0 = 0, t0
 
                 # --- Jonli holat (sozlamalar oynasi o'qiydi) ---
                 if t0 - last_mute_check > 1.0:
@@ -252,6 +263,10 @@ class GestureApp:
         color = (0, 200, 0) if self.state == ACTIVE else (128, 128, 128)
         label = "FAOL" if self.state == ACTIVE else "KUTISH (thumbs-up'ni 1s ko'rsating)"
         cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+        fps = self.metrics.get("fps")
+        if fps:
+            cv2.putText(frame, f"FPS: {fps}", (frame.shape[1] - 110, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
         if self.state == ACTIVE and self.last_volume is not None:
             cv2.putText(
                 frame,

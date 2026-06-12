@@ -43,9 +43,18 @@ class Api:
         return config.current()
 
 
+def _eval(js: str) -> None:
+    if _window is not None:
+        try:
+            _window.evaluate_js(js)
+        except Exception:  # sahifa hali yuklanmagan bo'lishi mumkin
+            pass
+
+
 def _on_closing():
     """X bosilganda oynani yashiramiz, ilova tray'da ishlashda davom etadi."""
     if _window is not None:
+        _eval("setPolling(false)")  # yashirin oyna CPU yemasin
         _window.hide()
     return False  # yopishni bekor qilish
 
@@ -72,6 +81,7 @@ def show() -> None:
     if _window is not None:
         _window.show()
         _window.restore()
+        _eval("setPolling(true)")
 
 
 def destroy() -> None:
