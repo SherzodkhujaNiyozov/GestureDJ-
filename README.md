@@ -10,10 +10,10 @@ Webcam orqali qo'lingizni kuzatadi (MediaPipe), tizim tray'ida ishlaydi.
 | 👍 Thumbs-up (1 soniya) | Boshqaruvni **faollashtirish** |
 | 👆 Faqat ko'rsatkich barmoq (1 soniya) | Boshqaruvni **o'chirish** (standby) |
 | 🤏 Bosh + ko'rsatkich barmoq ochiq, qolganlari yopiq | **Volume** — barmoqlar orasi qancha keng, ovoz shuncha baland |
-| 🖐️ Ochiq kaft (barmoqlar jips) | **Play/Pause** (media tugmasi) |
+| 🖐️ Ochiq kaft | **Play/Pause** (media tugmasi) |
 | ✊ Musht | **Pause** (media tugmasi) |
 | 🤌 Barmoq uchlari jips | **Mute** |
-| 🖐️✨ Barmoqlar keng yoyilgan | **Unmute** |
+| 🤌→✋ Beak ochilgani: 4 barmoq jips, bosh barmoq uzoqda | **Unmute** |
 
 Eslatma: Windows'da play va pause uchun bitta umumiy toggle tugma bor
 (VK_MEDIA_PLAY_PAUSE), shuning uchun kaft ham musht ham shu toggle'ni bosadi.

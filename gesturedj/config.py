@@ -18,9 +18,10 @@ ACTION_HOLD_SEC = 0.5      # play/pause/mute/unmute uchun ushlab turish
 BEAK_CLUSTER_MAX = 0.30  # uchlar markazdan shu nisbatdan yaqin bo'lsa - jips
 BEAK_MIN_REACH = 1.10    # o'rta barmoq uchi bilakdan shu nisbatdan uzoq (mushtdan farqi)
 
-# SPREAD (unmute) vs OPEN_PALM (play): qo'shni barmoq uchlari orasidagi
-# o'rtacha masofa shu qiymatdan katta bo'lsa - SPREAD
-SPREAD_GAP_MIN = 0.55
+# BEAK_OPEN (unmute, 🤌 ochilgani) aniqlash chegaralari:
+# 4 barmoq jips (spread_gap kichik) + bosh barmoq uzoqda (pinch katta)
+BEAK_OPEN_GAP_MAX = 0.25   # qo'shni barmoq uchlari orasidagi maks o'rtacha masofa
+BEAK_OPEN_PINCH_MIN = 0.60  # bosh-ko'rsatkich orasidagi min masofa
 
 # MediaPipe
 MIN_DETECTION_CONFIDENCE = 0.7

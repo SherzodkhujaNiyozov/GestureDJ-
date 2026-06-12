@@ -7,10 +7,10 @@ MediaPipe landmark indekslari:
 Ishoralar:
   THUMBS_UP - faqat bosh barmoq ochiq, tepaga qaragan -> faollashtirish
   INDEX_UP  - faqat ko'rsatkich barmoq ochiq           -> standby'ga qaytish
-  OPEN_PALM - kaft ochiq, barmoqlar bir-biriga yaqin   -> play
+  OPEN_PALM - kaft ochiq                                -> play
   FIST      - musht                                     -> pause
   BEAK      - barcha barmoq uchlari jips (🤌 yopiq)    -> mute
-  SPREAD    - barmoqlar keng yoyilgan                   -> unmute
+  BEAK_OPEN - 🤌 ochilgani: 4 barmoq jips, bosh barmoq uzoqda -> unmute
   volume pose - bosh+ko'rsatkich ochiq, qolganlari yopiq -> pinch bilan volume
 """
 
@@ -32,7 +32,7 @@ INDEX_UP = "index_up"
 OPEN_PALM = "open_palm"
 FIST = "fist"
 BEAK = "beak"
-SPREAD = "spread"
+BEAK_OPEN = "beak_open"
 
 
 def _dist(a, b) -> float:
@@ -90,8 +90,8 @@ def beak_reach(lms) -> float:
 
 def spread_gap(lms) -> float:
     """Qo'shni barmoq uchlari orasidagi o'rtacha masofa (kaft o'lchamiga
-    nisbatan). Katta = barmoqlar yoyilgan (SPREAD), kichik = jipslashgan
-    ochiq kaft (OPEN_PALM)."""
+    nisbatan). Kichik = 4 barmoq jips (BEAK_OPEN belgisi), katta =
+    barmoqlar yoyilgan oddiy ochiq kaft."""
     size = hand_size(lms)
     gaps = [
         _dist(lms[INDEX_TIP], lms[MIDDLE_TIP]),
@@ -127,6 +127,18 @@ def classify(lms) -> str | None:
     ):
         return BEAK
 
+    # BEAK_OPEN (🤌 ochilgani): 4 barmoq cho'zilgan va JIPS (orasi tor),
+    # bosh barmoq esa ko'rsatkichdan uzoqlashgan. Barmoq aniqlash xatosiga
+    # chidamli bo'lishi uchun index + kamida 2 ta boshqa barmoq yetarli.
+    if (
+        index
+        and (middle + ring + pinky) >= 2
+        and spread_gap(lms) < config.BEAK_OPEN_GAP_MAX
+        and pinch_ratio(lms) > config.BEAK_OPEN_PINCH_MIN
+        and beak_reach(lms) > config.BEAK_MIN_REACH
+    ):
+        return BEAK_OPEN
+
     if index and not thumb and not middle and not ring and not pinky:
         return INDEX_UP
 
@@ -137,8 +149,6 @@ def classify(lms) -> str | None:
         return None
 
     if index and middle and ring and pinky:
-        if spread_gap(lms) >= config.SPREAD_GAP_MIN:
-            return SPREAD
         return OPEN_PALM
 
     if not index and not middle and not ring and not pinky:
