@@ -5,6 +5,7 @@ Holatlar:
   ACTIVE  - to'liq FPS, pinch bilan volume, "musht" bilan standby'ga qaytish
 """
 
+import logging
 import threading
 import time
 
@@ -17,6 +18,8 @@ from . import config, gestures, media
 from .audio import AudioController
 from .model import ensure_model
 from .smoothing import EMA
+
+log = logging.getLogger(__name__)
 
 STANDBY = "standby"
 ACTIVE = "active"
@@ -38,12 +41,27 @@ class GestureApp:
         self.show_preview = False
         self.last_volume: float | None = None
         self.on_state_change = None  # tray icon yangilash uchun callback
+        self.metrics: dict = {}  # sozlamalar oynasi uchun jonli holat
 
     # ------------------------------------------------------------------
     def run(self) -> None:
         """Ishchi thread'da chaqiriladi."""
+        try:
+            self._run()
+        except Exception:
+            log.exception("Ishchi sikl kutilmagan xato bilan to'xtadi")
+
+    def _run(self) -> None:
         audio = AudioController()  # COM shu thread'da init bo'lishi kerak
         volume_ema = EMA(config.SMOOTHING_ALPHA)
+        self.last_volume = audio.get_volume()
+        log.info("Ishga tushdi: kamera=%s, volume=%.0f%%",
+                 config.CAMERA_INDEX, self.last_volume * 100)
+
+        def mute_toggle():
+            muted = not audio.is_muted()
+            audio.set_mute(muted)
+            self.metrics["muted"] = muted
 
         cap = cv2.VideoCapture(config.CAMERA_INDEX, cv2.CAP_DSHOW)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.FRAME_WIDTH)
@@ -63,6 +81,7 @@ class GestureApp:
         fired: set[str] = set()  # bir ishora uchun amal faqat bir marta bajarilsin
         preview_open = False
         start_time = time.monotonic()
+        last_mute_check = 0.0
 
         try:
             while not self.stop_event.is_set():
@@ -102,6 +121,7 @@ class GestureApp:
                         # 🤏 pinch -> volume (uzluksiz)
                         ratio = gestures.pinch_ratio(lms)
                         target = self._ratio_to_volume(ratio)
+                        volume_ema.alpha = config.SMOOTHING_ALPHA  # jonli sozlanadi
                         smoothed = volume_ema.update(target)
                         if (
                             self.last_volume is None
@@ -112,13 +132,28 @@ class GestureApp:
                     else:
                         volume_ema.reset()
                         # Bir martalik amallar (gesture ushlab turilganda 1 marta)
-                        for g, action in (
-                            (gestures.FIST, media.play_pause),  # ✊ play/pause toggle
-                            (gestures.BEAK, lambda: audio.set_mute(not audio.is_muted())),  # 🤌 mute toggle
+                        for g, name, action in (
+                            (gestures.FIST, "play/pause", media.play_pause),  # ✊ toggle
+                            (gestures.BEAK, "mute toggle", mute_toggle),       # 🤌 toggle
                         ):
                             if g not in fired and self._held(g, gesture_start, config.ACTION_HOLD_SEC):
                                 action()
                                 fired.add(g)
+                                log.info("Amal bajarildi: %s (gesture=%s)", name, g)
+
+                # --- Jonli holat (sozlamalar oynasi o'qiydi) ---
+                if t0 - last_mute_check > 1.0:
+                    self.metrics["muted"] = audio.is_muted()
+                    last_mute_check = t0
+                self.metrics.update({
+                    "state": self.state,
+                    "gesture": gesture,
+                    "hand": lms is not None,
+                    "volume": self.last_volume,
+                    "pinch": gestures.pinch_ratio(lms) if lms else None,
+                    "spread": gestures.spread_gap(lms) if lms else None,
+                    "beak": gestures.beak_cluster(lms) if lms else None,
+                })
 
                 # --- Preview oynasi (tray menyusidan yoqiladi) ---
                 if self.show_preview:
@@ -167,6 +202,7 @@ class GestureApp:
 
     def _set_state(self, state: str) -> None:
         self.state = state
+        log.info("Holat o'zgardi: %s", state)
         if self.on_state_change:
             self.on_state_change(state)
 

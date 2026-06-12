@@ -30,8 +30,15 @@ python -m venv .venv
 ```
 
 Ilova tray'da paydo bo'ladi. Tray menyusidan:
+- **Sozlamalar** (yoki ikonkaga ikki marta bosish) — jonli kalibrlash va
+  sozlamalar oynasi: hozirgi gesture, volume, pinch/beak metrikalari,
+  threshold slider'lari. O'zgarishlar darhol qo'llanadi va `config.json`
+  ga saqlanadi
 - **Preview ko'rsatish** — kamera + qo'l skeleti oynasini ochish (debug uchun)
 - **Chiqish** — ilovani yopish
+
+Sozlamalar oynasini yopsangiz ilova tray'da ishlashda davom etadi.
+Loglar `logs/gesturedj.log` faylida.
 
 ## Texnologiyalar
 
@@ -56,11 +63,14 @@ onefile sekin ochiladi).
 
 ```
 gesturedj/
-  main.py      - kirish nuqtasi (worker thread + tray)
+  main.py      - kirish nuqtasi (worker thread + tray + UI)
   app.py       - holat mashinasi (standby/active), kamera sikli
   gestures.py  - landmark'lardan ishora aniqlash
   audio.py     - pycaw orqali volume boshqarish
+  media.py     - media tugmalari (play/pause)
   smoothing.py - EMA (titroqqa qarshi silliqlash)
   tray.py      - pystray ikonka va menyu
-  config.py    - barcha sozlamalar
+  ui.py        - pywebview sozlamalar oynasi (JS<->Python ko'prik)
+  web/         - sozlamalar oynasi UI (HTML/CSS/JS, dark theme)
+  config.py    - default sozlamalar + config.json yuklash/saqlash
 ```

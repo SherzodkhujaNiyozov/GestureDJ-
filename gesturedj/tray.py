@@ -16,27 +16,24 @@ def _make_icon(active: bool) -> Image.Image:
     return img
 
 
-def run_tray(app: GestureApp) -> None:
-    """Asosiy thread'da bloklanib ishlaydi."""
+def create_icon(app: GestureApp, on_settings, on_quit) -> pystray.Icon:
+    """Tray ikonkasini yaratadi (ishga tushirish chaqiruvchining zimmasida)."""
 
     def toggle_preview(icon, item):
         app.show_preview = not app.show_preview
-
-    def quit_app(icon, item):
-        app.stop_event.set()
-        icon.stop()
 
     icon = pystray.Icon(
         "GestureDJ",
         icon=_make_icon(False),
         title="GestureDJ - kutish rejimi",
         menu=pystray.Menu(
+            pystray.MenuItem("Sozlamalar", lambda icon, item: on_settings(), default=True),
             pystray.MenuItem(
                 "Preview ko'rsatish",
                 toggle_preview,
                 checked=lambda item: app.show_preview,
             ),
-            pystray.MenuItem("Chiqish", quit_app),
+            pystray.MenuItem("Chiqish", lambda icon, item: on_quit()),
         ),
     )
 
@@ -46,4 +43,4 @@ def run_tray(app: GestureApp) -> None:
         icon.title = "GestureDJ - FAOL" if active else "GestureDJ - kutish rejimi"
 
     app.on_state_change = on_state_change
-    icon.run()
+    return icon

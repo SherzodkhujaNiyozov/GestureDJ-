@@ -4,8 +4,11 @@ Model bir marta yuklab olinadi (~8MB) va models/ papkasida saqlanadi.
 Keyin ilova to'liq oflayn ishlaydi.
 """
 
+import logging
 import urllib.request
 from pathlib import Path
+
+log = logging.getLogger(__name__)
 
 MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/hand_landmarker/"
@@ -16,8 +19,8 @@ MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "hand_landmarke
 
 def ensure_model() -> str:
     if not MODEL_PATH.exists():
-        print(f"Model yuklab olinmoqda: {MODEL_URL}")
+        log.info("Model yuklab olinmoqda: %s", MODEL_URL)
         MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
         urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
-        print(f"Model saqlandi: {MODEL_PATH}")
+        log.info("Model saqlandi: %s", MODEL_PATH)
     return str(MODEL_PATH)

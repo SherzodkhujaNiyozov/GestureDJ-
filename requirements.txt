@@ -5,3 +5,4 @@ comtypes
 pystray
 pillow
 numpy
+pywebview
