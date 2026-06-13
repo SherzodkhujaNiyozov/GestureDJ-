@@ -18,6 +18,15 @@ To'liq lokal — internetga ma'lumot yubormaydi, tashqi API ishlatmaydi.
 **Texnologiyalar:** Python · MediaPipe Tasks (HandLandmarker) · OpenCV ·
 pycaw · pystray · pywebview
 
+## Maxfiylik 🔒
+
+- 📷 **Kamera tasviri hech qayerga yuborilmaydi** — barchasi lokal qayta ishlanadi
+- 🚫 Telemetriya, analitika, kuzatuv — **yo'q**
+- 🌐 Yagona tarmoq chaqiruvi: birinchi ishga tushishda modelni yuklash (HTTPS + SHA-256 tekshiruv). EXE'da model ichida — **to'liq oflayn**
+- 🔑 Administrator huquqi **kerak emas**
+
+To'liq tafsilot: [SECURITY.md](SECURITY.md)
+
 ## Ishoralar
 
 | Ishora | Vazifa |
