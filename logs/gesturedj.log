@@ -1,0 +1,43 @@
+2026-06-13 04:00:54,800 INFO gesturedj.main: GestureDJ ishga tushmoqda
+2026-06-13 04:00:54,840 INFO gesturedj.app: Ishga tushdi: kamera=0, volume=20%
+2026-06-13 04:07:33,322 INFO gesturedj.main: GestureDJ ishga tushmoqda
+2026-06-13 04:07:33,361 INFO gesturedj.app: Ishga tushdi: kamera=0, volume=20%
+2026-06-13 04:09:31,575 INFO gesturedj.app: Holat o'zgardi: active
+2026-06-13 04:09:48,267 INFO gesturedj.app: Amal bajarildi: play/pause (gesture=fist)
+2026-06-13 04:10:02,952 INFO gesturedj.app: Holat o'zgardi: standby
+2026-06-13 04:10:21,668 INFO gesturedj.app: Holat o'zgardi: active
+2026-06-13 04:10:55,960 INFO gesturedj.app: Holat o'zgardi: standby
+2026-06-13 04:11:10,671 INFO gesturedj.app: Holat o'zgardi: active
+2026-06-13 04:11:14,250 INFO gesturedj.app: Amal bajarildi: play/pause (gesture=fist)
+2026-06-13 04:11:19,594 INFO gesturedj.app: Amal bajarildi: play/pause (gesture=fist)
+2026-06-13 04:23:02,279 INFO gesturedj.main: GestureDJ ishga tushmoqda
+2026-06-13 04:23:02,317 INFO gesturedj.app: Ishga tushdi: kamera=0, volume=14%
+2026-06-13 04:23:12,187 INFO gesturedj.app: Holat o'zgardi: active
+2026-06-13 04:23:14,039 WARNING gesturedj.app: Real FPS past: 6.1 (maqsad 20)
+2026-06-13 04:23:16,840 INFO gesturedj.app: Amal bajarildi: play/pause (gesture=fist)
+2026-06-13 04:23:19,240 WARNING gesturedj.app: Real FPS past: 7.1 (maqsad 20)
+2026-06-13 04:23:24,321 WARNING gesturedj.app: Real FPS past: 7.5 (maqsad 20)
+2026-06-13 04:23:29,387 WARNING gesturedj.app: Real FPS past: 7.5 (maqsad 20)
+2026-06-13 04:23:32,184 INFO gesturedj.app: Amal bajarildi: mute toggle (gesture=beak)
+2026-06-13 04:23:34,457 WARNING gesturedj.app: Real FPS past: 7.5 (maqsad 20)
+2026-06-13 04:23:39,528 WARNING gesturedj.app: Real FPS past: 7.5 (maqsad 20)
+2026-06-13 04:23:44,600 WARNING gesturedj.app: Real FPS past: 7.5 (maqsad 20)
+2026-06-13 04:23:48,473 INFO gesturedj.app: Amal bajarildi: mute toggle (gesture=beak)
+2026-06-13 04:23:49,693 WARNING gesturedj.app: Real FPS past: 7.5 (maqsad 20)
+2026-06-13 04:23:54,762 WARNING gesturedj.app: Real FPS past: 7.3 (maqsad 20)
+2026-06-13 04:23:59,832 WARNING gesturedj.app: Real FPS past: 7.5 (maqsad 20)
+2026-06-13 04:24:01,161 INFO gesturedj.app: Holat o'zgardi: standby
+2026-06-13 04:24:04,998 INFO gesturedj.ui: UI sikli tugadi
+2026-06-13 04:24:05,322 INFO gesturedj.main: GestureDJ to'xtadi
+2026-06-14 01:21:21,672 INFO gesturedj.main: GestureDJ ishga tushmoqda
+2026-06-14 01:21:21,710 INFO gesturedj.app: Ishga tushdi: kamera=0, volume=34%
+2026-06-14 02:18:21,269 INFO gesturedj.main: GestureDJ ishga tushmoqda
+2026-06-14 02:18:21,327 INFO gesturedj.app: Ishga tushdi: kamera=0, volume=50%
+2026-06-14 02:22:47,830 INFO gesturedj.main: GestureDJ ishga tushmoqda
+2026-06-14 02:22:47,876 INFO gesturedj.app: Ishga tushdi: kamera=0, volume=50%
+2026-06-14 02:23:27,144 INFO gesturedj.config: config.json saqlandi
+2026-06-14 02:24:20,895 INFO gesturedj.main: Chiqish so'raldi
+2026-06-14 02:24:21,262 INFO gesturedj.ui: UI sikli tugadi
+2026-06-14 02:24:21,280 INFO gesturedj.main: GestureDJ to'xtadi
+2026-06-14 02:32:35,225 INFO gesturedj.main: GestureDJ ishga tushmoqda
+2026-06-14 02:32:35,263 INFO gesturedj.app: Ishga tushdi: kamera=0, volume=50%
