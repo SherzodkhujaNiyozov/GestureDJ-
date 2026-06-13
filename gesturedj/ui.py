@@ -7,6 +7,7 @@ bosilganda destroy() chaqiriladi va webview.start() qaytadi.
 """
 
 import logging
+import threading
 
 import webview
 
@@ -57,6 +58,17 @@ class Api:
         autostart.set_enabled(bool(enabled))
         return autostart.is_enabled()
 
+    LANGUAGES = ("uz", "en", "es", "ja", "ru")
+
+    def get_language(self) -> str:
+        return config.LANG
+
+    def set_language(self, lang: str) -> str:
+        if lang in self.LANGUAGES:
+            config.update({"LANG": lang})
+            config.save()
+        return config.LANG
+
 
 def _eval(js: str) -> None:
     if _window is not None:
@@ -75,8 +87,12 @@ def _on_closing():
     if _quitting:
         return True
     if _window is not None:
-        _eval("setPolling(false)")  # yashirin oyna CPU yemasin
         _window.hide()
+        # evaluate_js'ni shu yerda (GUI thread'ida) sinxron chaqirsak deadlock
+        # bo'ladi -> oyna "javob bermayapti". Alohida thread'ga chiqaramiz.
+        threading.Thread(
+            target=lambda: _eval("setPolling(false)"), daemon=True
+        ).start()
     return False  # yopishni bekor qilish
 
 

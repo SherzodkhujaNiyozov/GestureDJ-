@@ -68,8 +68,22 @@ Loglar `logs/gesturedj.log` faylida.
 
 ## EXE qilib qadoqlash (PyInstaller)
 
+**Oson yo'l** — tayyor skript (ikonkani yangilaydi, eski build'ni tozalaydi, yig'adi):
+
 ```powershell
+.\build.ps1
+```
+
+**Qo'lda** — bosqichma-bosqich:
+
+```powershell
+# 1. PyInstaller'ni o'rnatish (bir marta)
 .\.venv\Scripts\pip install pyinstaller
+
+# 2. Logodan ikonka yasash (logo o'zgarsa qayta)
+.\.venv\Scripts\python scripts\make_icon.py
+
+# 3. Yig'ish
 .\.venv\Scripts\pyinstaller --noconfirm --noconsole --name GestureDJ `
   --icon assets\icon.ico --collect-all mediapipe `
   --add-data "gesturedj\web;gesturedj\web" --add-data "models;models" `
@@ -77,8 +91,14 @@ Loglar `logs/gesturedj.log` faylida.
   run.py
 ```
 
+Flaglar nima qiladi:
+- `--noconsole` — qora terminal oynasisiz ishlaydi (tray ilova uchun)
+- `--collect-all mediapipe` — MediaPipe'ning yashirin model/resurs fayllarini qo'shadi (busiz ishlamaydi)
+- `--add-data "manba;maqsad"` — web UI, model va logoni exe ichiga qadoqlaydi
+- `--icon` — exe va oyna ikonkasi
+
 Natija: `dist\GestureDJ\` papkasi — `GestureDJ.exe` ni ishga tushiring.
-Model va web UI exe ichiga qadoqlanadi; `config.json` va `logs/` exe
+Model, web UI va logo exe ichiga qadoqlanadi; `config.json` va `logs/` exe
 yonida yaratiladi.
 
 Eslatmalar:

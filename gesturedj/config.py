@@ -15,6 +15,9 @@ log = logging.getLogger(__name__)
 CONFIG_PATH = app_dir() / "config.json"
 
 DEFAULTS: dict = {
+    # Til (UI tili): uz | en | es | ja | ru
+    "LANG": "uz",
+
     # Kamera
     "CAMERA_INDEX": 0,
     "FRAME_WIDTH": 640,
@@ -70,8 +73,13 @@ def current() -> dict:
 def update(values: dict) -> None:
     """Sozlamalarni jonli qo'llash (faqat ma'lum kalitlar, tip tekshiruv bilan)."""
     for k, v in values.items():
-        if k in DEFAULTS and isinstance(v, (int, float)):
-            globals()[k] = type(DEFAULTS[k])(v)
+        if k not in DEFAULTS:
+            continue
+        dtype = type(DEFAULTS[k])
+        if dtype is str and isinstance(v, str):
+            globals()[k] = v
+        elif dtype in (int, float) and isinstance(v, (int, float)) and not isinstance(v, bool):
+            globals()[k] = dtype(v)
 
 
 def save() -> None:

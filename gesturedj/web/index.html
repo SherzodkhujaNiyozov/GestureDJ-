@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GestureDJ — Sozlamalar</title>
+<title>GestureDJ</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
 
@@ -37,37 +37,35 @@
     user-select: none;
   }
 
-  header {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
-  }
-  header svg { flex-shrink: 0; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  header svg.logo { flex-shrink: 0; }
   header h1 { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
   header .sub { color: var(--muted); font-size: 12px; }
 
-  .badge {
+  .lang-select {
     margin-left: auto;
-    padding: 6px 16px;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 13px;
+    font-family: var(--font-body); font-size: 13px; font-weight: 500;
+    color: var(--text); background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 7px 10px; cursor: pointer;
+    transition: background-color 200ms;
+  }
+  .lang-select:hover { background: rgba(165,180,252,.15); }
+  .lang-select:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent-soft); }
+
+  .badge {
+    padding: 6px 16px; border-radius: 999px; font-weight: 600; font-size: 13px;
     transition: background-color 250ms, color 250ms;
   }
   .badge.standby { background: rgba(165,180,252,.12); color: var(--muted); }
   .badge.active  { background: rgba(34,197,94,.15); color: var(--green); }
-  .badge.nohand  { background: rgba(239,68,68,.12); color: var(--red); }
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
 
   .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px;
   }
   .card h2 {
     font-family: var(--font-display);
@@ -79,8 +77,7 @@
   /* --- Jonli holat --- */
   .gesture-now {
     display: flex; align-items: center; gap: 12px;
-    background: var(--surface-2);
-    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    background: var(--surface-2); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
   }
   .gesture-now .name { font-size: 18px; font-weight: 600; }
   .gesture-now .desc { color: var(--muted); font-size: 12px; }
@@ -105,10 +102,7 @@
   .meter { margin-bottom: 14px; }
   .meter .top { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
   .meter .top b { color: var(--text); font-family: var(--font-mono); font-weight: 600; }
-  .meter .track {
-    position: relative; height: 6px; border-radius: 999px;
-    background: rgba(165,180,252,.12);
-  }
+  .meter .track { position: relative; height: 6px; border-radius: 999px; background: rgba(165,180,252,.12); }
   .meter .track .fill {
     height: 100%; border-radius: 999px; background: var(--accent-soft);
     transition: width 120ms linear;
@@ -154,7 +148,6 @@
   }
   .btn-save { background: var(--green); color: #052E16; flex: 1; }
   .btn-save:hover { background: #4ADE80; }
-  .btn-save:disabled { opacity: .5; cursor: default; }
   .btn-reset { background: rgba(165,180,252,.12); color: var(--muted); }
   .btn-reset:hover { background: rgba(239,68,68,.15); color: var(--red); }
   .save-note { font-size: 11px; color: var(--green); margin-top: 8px; height: 16px; transition: opacity 400ms; opacity: 0; }
@@ -186,15 +179,13 @@
   .btn-quit:hover { background: var(--red); color: #fff; }
   .btn-quit:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--red); }
 
-  @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; }
-  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
 
 <header>
-  <svg width="40" height="40" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GestureDJ">
+  <svg class="logo" width="40" height="40" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GestureDJ">
     <rect width="512" height="512" rx="116" fill="#1E1B4B"/>
     <g stroke="#6366F1" stroke-width="54" stroke-linecap="round" stroke-linejoin="round" fill="none">
       <path d="M146 182 Q214 190 268 224"/>
@@ -208,9 +199,16 @@
   </svg>
   <div>
     <h1>GestureDJ</h1>
-    <div class="sub" id="subline">Qo'l ishoralari bilan audio boshqaruv</div>
+    <div class="sub" id="subline" data-i18n="subtitle"></div>
   </div>
-  <span id="badge" class="badge standby">KUTISH</span>
+  <select id="langSel" class="lang-select" aria-label="Language">
+    <option value="uz">O'zbek</option>
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="ja">日本語</option>
+    <option value="ru">Русский</option>
+  </select>
+  <span id="badge" class="badge standby"></span>
 </header>
 
 <div class="grid">
@@ -222,7 +220,7 @@
         <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
         <path d="M12 5a7 7 0 0 1 7 7M12 1a11 11 0 0 1 11 11M12 19a7 7 0 0 1-7-7M12 23A11 11 0 0 1 1 12"/>
       </svg>
-      Jonli holat
+      <span data-i18n="live"></span>
     </h2>
 
     <div class="gesture-now">
@@ -232,7 +230,7 @@
       </svg>
       <div>
         <div class="name" id="gestureName">—</div>
-        <div class="desc" id="gestureDesc">Qo'l kutilmoqda...</div>
+        <div class="desc" id="gestureDesc"></div>
       </div>
     </div>
 
@@ -243,19 +241,19 @@
       </svg>
       <div class="volume-bar"><div class="fill" id="volFill" style="width:0%"></div></div>
       <span class="volume-num" id="volNum">—</span>
-      <span class="mute-tag" id="muteTag">MUTE</span>
+      <span class="mute-tag" id="muteTag" data-i18n="mute"></span>
     </div>
 
     <div class="meter">
-      <div class="top"><span>Pinch (volume masofasi)</span><b id="pinchVal">—</b></div>
+      <div class="top"><span data-i18n="pinchMeter"></span><b id="pinchVal">—</b></div>
       <div class="track"><div class="fill" id="pinchFill"></div><div class="mark" id="pinchMin"></div><div class="mark" id="pinchMax"></div></div>
     </div>
     <div class="meter">
-      <div class="top"><span>Beak (uchlar jipsligi — chiziqdan past = mute)</span><b id="beakVal">—</b></div>
+      <div class="top"><span data-i18n="beakMeter"></span><b id="beakVal">—</b></div>
       <div class="track"><div class="fill" id="beakFill"></div><div class="mark" id="beakMark"></div></div>
     </div>
     <div class="meter">
-      <div class="top"><span>Spread (barmoqlar orasi)</span><b id="spreadVal">—</b></div>
+      <div class="top"><span data-i18n="spreadMeter"></span><b id="spreadVal">—</b></div>
       <div class="track"><div class="fill" id="spreadFill"></div></div>
     </div>
   </section>
@@ -267,18 +265,18 @@
         <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/>
         <path d="M1 14h6M9 8h6M17 16h6"/>
       </svg>
-      Sozlamalar
+      <span data-i18n="settings"></span>
     </h2>
     <div id="settings"></div>
     <label class="autostart">
       <input type="checkbox" id="autostartChk">
-      <span>Windows bilan ishga tushsin</span>
+      <span data-i18n="autostart"></span>
     </label>
     <div class="btn-row">
-      <button class="btn-save" id="btnSave">Saqlash</button>
-      <button class="btn-reset" id="btnReset">Defaultga qaytarish</button>
+      <button class="btn-save" id="btnSave" data-i18n="save"></button>
+      <button class="btn-reset" id="btnReset" data-i18n="reset"></button>
     </div>
-    <div class="save-note" id="saveNote">Saqlandi — darhol qo'llanmoqda</div>
+    <div class="save-note" id="saveNote" data-i18n="saved"></div>
   </section>
 
   <!-- Gesture xaritasi -->
@@ -288,7 +286,7 @@
         <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
         <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
       </svg>
-      Gesture xaritasi
+      <span data-i18n="gestureMap"></span>
     </h2>
     <div class="gesture-list" id="gestureList"></div>
   </section>
@@ -296,56 +294,233 @@
 </div>
 
 <footer>
-  <span>GestureDJ · sozlamalar config.json faylida saqlanadi · oynani yopsangiz (X) ilova tray'da ishlashda davom etadi</span>
+  <span data-i18n="footerNote"></span>
   <button id="btnQuit" class="btn-quit" type="button">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
     </svg>
-    Ilovadan chiqish
+    <span data-i18n="quit"></span>
   </button>
 </footer>
 
 <script>
-const GESTURES = {
-  thumbs_up: { t: "Thumbs-up", d: "Faollashtirish (1s)" },
-  index_up:  { t: "Ko'rsatkich barmoq", d: "Trayga qaytarish (1s)" },
-  fist:      { t: "Musht", d: "Play / Pause" },
-  beak:      { t: "Beak (uchlar jips)", d: "Mute / Unmute" },
-  open_palm: { t: "Ochiq kaft", d: "Bo'sh (amal yo'q)" },
-  volume:    { t: "Pinch", d: "Volume (bosh+ko'rsatkich)" },
+// ---- i18n resources (i18next uslubidagi yengil yechim, oflayn) ----
+const GKEYS = ["thumbs_up", "index_up", "fist", "beak", "open_palm", "volume"];
+const SKEYS = ["ACTIVATE_HOLD_SEC", "DEACTIVATE_HOLD_SEC", "ACTION_HOLD_SEC",
+  "PINCH_MIN", "PINCH_MAX", "SMOOTHING_ALPHA", "BEAK_CLUSTER_MAX", "ACTIVE_FPS", "STANDBY_FPS"];
+
+const I18N = {
+  uz: {
+    ui: {
+      subtitle: "Qo'l ishoralari bilan audio boshqaruv",
+      standby: "KUTISH", active: "FAOL", live: "Jonli holat", settings: "Sozlamalar",
+      gestureMap: "Gesture xaritasi", autostart: "Windows bilan ishga tushsin",
+      save: "Saqlash", reset: "Standartga qaytarish", quit: "Ilovadan chiqish",
+      saved: "Saqlandi — darhol qo'llandi",
+      footerNote: "Sozlamalar config.json'da saqlanadi · oynani yopsangiz (X) ilova tray'da davom etadi",
+      mute: "MUTE", waitingHand: "Qo'l kutilmoqda…", handVisible: "Qo'l ko'rinmoqda",
+      notDetected: "Aniqlanmadi",
+      pinchMeter: "Pinch (volume masofasi)",
+      beakMeter: "Beak (uchlar jipsligi — chiziqdan past = mute)",
+      spreadMeter: "Spread (barmoqlar orasi)",
+    },
+    g: {
+      thumbs_up: { t: "Thumbs-up", d: "Faollashtirish (1s)" },
+      index_up: { t: "Ko'rsatkich barmoq", d: "Trayga qaytarish (1s)" },
+      fist: { t: "Musht", d: "Play / Pause" },
+      beak: { t: "Beak (uchlar jips)", d: "Mute / Unmute" },
+      open_palm: { t: "Ochiq kaft", d: "Bo'sh (amal yo'q)" },
+      volume: { t: "Pinch", d: "Volume (bosh+ko'rsatkich)" },
+    },
+    s: {
+      ACTIVATE_HOLD_SEC: { l: "Faollashtirish vaqti", h: "thumbs-up ushlab turish, s" },
+      DEACTIVATE_HOLD_SEC: { l: "O'chirish vaqti", h: "ko'rsatkich barmoq, s" },
+      ACTION_HOLD_SEC: { l: "Amal vaqti", h: "musht/beak ushlab turish, s" },
+      PINCH_MIN: { l: "Pinch minimal", h: "shu masofada volume = 0%" },
+      PINCH_MAX: { l: "Pinch maksimal", h: "shu masofada volume = 100%" },
+      SMOOTHING_ALPHA: { l: "Silliqlash", h: "kichik = silliqroq, sekinroq" },
+      BEAK_CLUSTER_MAX: { l: "Beak sezgirligi", h: "uchlar jipsligi chegarasi" },
+      ACTIVE_FPS: { l: "Faol FPS", h: "faol rejimdagi kadr tezligi" },
+      STANDBY_FPS: { l: "Kutish FPS", h: "CPU tejash uchun past" },
+    },
+  },
+  en: {
+    ui: {
+      subtitle: "Hand-gesture audio control",
+      standby: "STANDBY", active: "ACTIVE", live: "Live status", settings: "Settings",
+      gestureMap: "Gesture map", autostart: "Launch with Windows",
+      save: "Save", reset: "Reset to defaults", quit: "Quit app",
+      saved: "Saved — applied instantly",
+      footerNote: "Settings saved in config.json · closing (X) keeps the app running in the tray",
+      mute: "MUTE", waitingHand: "Waiting for hand…", handVisible: "Hand visible",
+      notDetected: "Not detected",
+      pinchMeter: "Pinch (volume distance)",
+      beakMeter: "Beak (tip closeness — below line = mute)",
+      spreadMeter: "Spread (gap between fingers)",
+    },
+    g: {
+      thumbs_up: { t: "Thumbs-up", d: "Activate (1s)" },
+      index_up: { t: "Index finger", d: "Back to tray (1s)" },
+      fist: { t: "Fist", d: "Play / Pause" },
+      beak: { t: "Beak (tips together)", d: "Mute / Unmute" },
+      open_palm: { t: "Open palm", d: "Unassigned" },
+      volume: { t: "Pinch", d: "Volume (thumb + index)" },
+    },
+    s: {
+      ACTIVATE_HOLD_SEC: { l: "Activation time", h: "hold thumbs-up, s" },
+      DEACTIVATE_HOLD_SEC: { l: "Deactivation time", h: "index finger, s" },
+      ACTION_HOLD_SEC: { l: "Action time", h: "hold fist/beak, s" },
+      PINCH_MIN: { l: "Pinch minimum", h: "this distance = volume 0%" },
+      PINCH_MAX: { l: "Pinch maximum", h: "this distance = volume 100%" },
+      SMOOTHING_ALPHA: { l: "Smoothing", h: "smaller = smoother, slower" },
+      BEAK_CLUSTER_MAX: { l: "Beak sensitivity", h: "tip closeness threshold" },
+      ACTIVE_FPS: { l: "Active FPS", h: "frame rate when active" },
+      STANDBY_FPS: { l: "Standby FPS", h: "low to save CPU" },
+    },
+  },
+  es: {
+    ui: {
+      subtitle: "Control de audio por gestos",
+      standby: "EN ESPERA", active: "ACTIVO", live: "Estado en vivo", settings: "Ajustes",
+      gestureMap: "Mapa de gestos", autostart: "Iniciar con Windows",
+      save: "Guardar", reset: "Restablecer", quit: "Salir de la app",
+      saved: "Guardado — aplicado al instante",
+      footerNote: "Ajustes guardados en config.json · al cerrar (X) la app sigue en la bandeja",
+      mute: "SILENCIO", waitingHand: "Esperando la mano…", handVisible: "Mano visible",
+      notDetected: "No detectado",
+      pinchMeter: "Pinch (distancia de volumen)",
+      beakMeter: "Beak (cierre de puntas — bajo la línea = silencio)",
+      spreadMeter: "Spread (separación de dedos)",
+    },
+    g: {
+      thumbs_up: { t: "Pulgar arriba", d: "Activar (1s)" },
+      index_up: { t: "Dedo índice", d: "Volver a la bandeja (1s)" },
+      fist: { t: "Puño", d: "Reproducir / Pausa" },
+      beak: { t: "Beak (puntas juntas)", d: "Silenciar / Activar" },
+      open_palm: { t: "Palma abierta", d: "Sin asignar" },
+      volume: { t: "Pinch", d: "Volumen (pulgar + índice)" },
+    },
+    s: {
+      ACTIVATE_HOLD_SEC: { l: "Tiempo de activación", h: "mantener pulgar arriba, s" },
+      DEACTIVATE_HOLD_SEC: { l: "Tiempo de desactivación", h: "dedo índice, s" },
+      ACTION_HOLD_SEC: { l: "Tiempo de acción", h: "mantener puño/beak, s" },
+      PINCH_MIN: { l: "Pinch mínimo", h: "esta distancia = volumen 0%" },
+      PINCH_MAX: { l: "Pinch máximo", h: "esta distancia = volumen 100%" },
+      SMOOTHING_ALPHA: { l: "Suavizado", h: "menor = más suave, más lento" },
+      BEAK_CLUSTER_MAX: { l: "Sensibilidad de beak", h: "umbral de cierre de puntas" },
+      ACTIVE_FPS: { l: "FPS activo", h: "fotogramas al estar activo" },
+      STANDBY_FPS: { l: "FPS en espera", h: "bajo para ahorrar CPU" },
+    },
+  },
+  ja: {
+    ui: {
+      subtitle: "ハンドジェスチャーで音声操作",
+      standby: "待機", active: "有効", live: "ライブ状態", settings: "設定",
+      gestureMap: "ジェスチャー一覧", autostart: "Windows起動時に開始",
+      save: "保存", reset: "初期値に戻す", quit: "アプリを終了",
+      saved: "保存しました — すぐに適用",
+      footerNote: "設定は config.json に保存 · 閉じても（X）アプリはトレイで動作します",
+      mute: "ミュート", waitingHand: "手を待っています…", handVisible: "手を検出",
+      notDetected: "未検出",
+      pinchMeter: "ピンチ（音量の距離）",
+      beakMeter: "ビーク（指先の近さ — 線より下＝ミュート）",
+      spreadMeter: "スプレッド（指の間隔）",
+    },
+    g: {
+      thumbs_up: { t: "サムズアップ", d: "有効化（1秒）" },
+      index_up: { t: "人差し指", d: "トレイに戻す（1秒）" },
+      fist: { t: "握りこぶし", d: "再生 / 一時停止" },
+      beak: { t: "ビーク（指先を合わせる）", d: "ミュート切替" },
+      open_palm: { t: "開いた手のひら", d: "未割り当て" },
+      volume: { t: "ピンチ", d: "音量（親指＋人差し指）" },
+    },
+    s: {
+      ACTIVATE_HOLD_SEC: { l: "有効化の時間", h: "サムズアップ長押し, 秒" },
+      DEACTIVATE_HOLD_SEC: { l: "無効化の時間", h: "人差し指, 秒" },
+      ACTION_HOLD_SEC: { l: "操作の時間", h: "握りこぶし/ビーク長押し, 秒" },
+      PINCH_MIN: { l: "ピンチ最小", h: "この距離で音量0%" },
+      PINCH_MAX: { l: "ピンチ最大", h: "この距離で音量100%" },
+      SMOOTHING_ALPHA: { l: "スムージング", h: "小さいほど滑らか・遅い" },
+      BEAK_CLUSTER_MAX: { l: "ビーク感度", h: "指先の近さのしきい値" },
+      ACTIVE_FPS: { l: "アクティブFPS", h: "有効時のフレームレート" },
+      STANDBY_FPS: { l: "待機FPS", h: "CPU節約のため低め" },
+    },
+  },
+  ru: {
+    ui: {
+      subtitle: "Управление звуком жестами",
+      standby: "ОЖИДАНИЕ", active: "АКТИВНО", live: "Статус в реальном времени", settings: "Настройки",
+      gestureMap: "Карта жестов", autostart: "Запускать с Windows",
+      save: "Сохранить", reset: "Сбросить настройки", quit: "Выйти из приложения",
+      saved: "Сохранено — применено сразу",
+      footerNote: "Настройки в config.json · при закрытии (X) приложение продолжает работать в трее",
+      mute: "БЕЗ ЗВУКА", waitingHand: "Ожидание руки…", handVisible: "Рука видна",
+      notDetected: "Не определено",
+      pinchMeter: "Pinch (расстояние громкости)",
+      beakMeter: "Beak (близость кончиков — ниже линии = без звука)",
+      spreadMeter: "Spread (расстояние между пальцами)",
+    },
+    g: {
+      thumbs_up: { t: "Большой палец вверх", d: "Активация (1с)" },
+      index_up: { t: "Указательный палец", d: "Вернуть в трей (1с)" },
+      fist: { t: "Кулак", d: "Воспроизведение / Пауза" },
+      beak: { t: "Beak (кончики вместе)", d: "Звук вкл/выкл" },
+      open_palm: { t: "Открытая ладонь", d: "Не назначено" },
+      volume: { t: "Pinch", d: "Громкость (большой + указательный)" },
+    },
+    s: {
+      ACTIVATE_HOLD_SEC: { l: "Время активации", h: "удержание большого пальца, с" },
+      DEACTIVATE_HOLD_SEC: { l: "Время деактивации", h: "указательный палец, с" },
+      ACTION_HOLD_SEC: { l: "Время действия", h: "удержание кулака/beak, с" },
+      PINCH_MIN: { l: "Pinch минимум", h: "это расстояние = громкость 0%" },
+      PINCH_MAX: { l: "Pinch максимум", h: "это расстояние = громкость 100%" },
+      SMOOTHING_ALPHA: { l: "Сглаживание", h: "меньше = плавнее, медленнее" },
+      BEAK_CLUSTER_MAX: { l: "Чувствительность beak", h: "порог близости кончиков" },
+      ACTIVE_FPS: { l: "Активный FPS", h: "частота кадров при активности" },
+      STANDBY_FPS: { l: "FPS ожидания", h: "низкий для экономии CPU" },
+    },
+  },
 };
 
-const SETTINGS = [
-  { k: "ACTIVATE_HOLD_SEC",   l: "Faollashtirish vaqti",   h: "thumbs-up ushlab turish, s", min: 0.3, max: 3,   step: 0.1 },
-  { k: "DEACTIVATE_HOLD_SEC", l: "O'chirish vaqti",        h: "ko'rsatkich barmoq, s",      min: 0.3, max: 3,   step: 0.1 },
-  { k: "ACTION_HOLD_SEC",     l: "Amal vaqti",             h: "musht/beak ushlab turish, s", min: 0.2, max: 2,  step: 0.1 },
-  { k: "PINCH_MIN",           l: "Pinch minimal",          h: "shu masofada volume = 0%",   min: 0,   max: 0.5, step: 0.01 },
-  { k: "PINCH_MAX",           l: "Pinch maksimal",         h: "shu masofada volume = 100%", min: 0.5, max: 1.5, step: 0.01 },
-  { k: "SMOOTHING_ALPHA",     l: "Silliqlash",             h: "kichik = silliqroq, sekinroq", min: 0.05, max: 1, step: 0.05 },
-  { k: "BEAK_CLUSTER_MAX",    l: "Beak sezgirligi",        h: "uchlar jipsligi chegarasi",  min: 0.1, max: 0.6, step: 0.01 },
-  { k: "ACTIVE_FPS",          l: "Faol FPS",               h: "faol rejimdagi kadr tezligi", min: 5,  max: 30,  step: 1 },
-  { k: "STANDBY_FPS",         l: "Kutish FPS",             h: "CPU tejash uchun past",      min: 1,   max: 15,  step: 1 },
-];
+const SETTINGS_META = {
+  ACTIVATE_HOLD_SEC:   { min: 0.3,  max: 3,   step: 0.1 },
+  DEACTIVATE_HOLD_SEC: { min: 0.3,  max: 3,   step: 0.1 },
+  ACTION_HOLD_SEC:     { min: 0.2,  max: 2,   step: 0.1 },
+  PINCH_MIN:           { min: 0,    max: 0.5, step: 0.01 },
+  PINCH_MAX:           { min: 0.5,  max: 1.5, step: 0.01 },
+  SMOOTHING_ALPHA:     { min: 0.05, max: 1,   step: 0.05 },
+  BEAK_CLUSTER_MAX:    { min: 0.1,  max: 0.6, step: 0.01 },
+  ACTIVE_FPS:          { min: 5,    max: 30,  step: 1 },
+  STANDBY_FPS:         { min: 1,    max: 15,  step: 1 },
+};
 
+let lang = "uz";
 let cfg = {};
+let lastGesture = null;
+let lastFps = null;
 
 function el(id) { return document.getElementById(id); }
 function fmt(v) { return Number.isInteger(v) ? v : (+v).toFixed(2).replace(/0$/, ""); }
 function pct(v, max) { return Math.min(100, Math.max(0, v / max * 100)) + "%"; }
+function t(key) { return (I18N[lang]?.ui[key]) ?? I18N.uz.ui[key] ?? key; }
+function gtext(key) { return (I18N[lang]?.g[key]) ?? I18N.uz.g[key]; }
+function stext(key) { return (I18N[lang]?.s[key]) ?? I18N.uz.s[key]; }
 
 function buildSettings() {
   const root = el("settings");
   root.innerHTML = "";
-  for (const s of SETTINGS) {
+  for (const k of SKEYS) {
+    const m = SETTINGS_META[k];
+    const tr = stext(k);
     const div = document.createElement("div");
     div.className = "setting";
     div.innerHTML =
-      `<div class="top"><label for="in_${s.k}">${s.l} <span class="hint">· ${s.h}</span></label>` +
-      `<span class="val" id="val_${s.k}">${fmt(cfg[s.k])}</span></div>` +
-      `<input type="range" id="in_${s.k}" min="${s.min}" max="${s.max}" step="${s.step}" value="${cfg[s.k]}">`;
+      `<div class="top"><label for="in_${k}">${tr.l} <span class="hint">· ${tr.h}</span></label>` +
+      `<span class="val" id="val_${k}">${fmt(cfg[k])}</span></div>` +
+      `<input type="range" id="in_${k}" min="${m.min}" max="${m.max}" step="${m.step}" value="${cfg[k]}">`;
     root.appendChild(div);
-    el("in_" + s.k).addEventListener("input", (e) => {
-      el("val_" + s.k).textContent = fmt(+e.target.value);
+    el("in_" + k).addEventListener("input", (e) => {
+      el("val_" + k).textContent = fmt(+e.target.value);
     });
   }
 }
@@ -353,7 +528,8 @@ function buildSettings() {
 function buildGestureList(current) {
   const root = el("gestureList");
   root.innerHTML = "";
-  for (const [key, g] of Object.entries(GESTURES)) {
+  for (const key of GKEYS) {
+    const g = gtext(key);
     const div = document.createElement("div");
     div.className = "gitem" + (key === current ? " now" : "");
     div.innerHTML = `<div class="t">${g.t}</div><div class="d">${g.d}</div>`;
@@ -361,29 +537,50 @@ function buildGestureList(current) {
   }
 }
 
-function setMark(id, value, scaleMax) {
-  el(id).style.left = pct(value, scaleMax);
+function setMark(id, value, scaleMax) { el(id).style.left = pct(value, scaleMax); }
+
+function refreshMarks() {
+  setMark("pinchMin", cfg.PINCH_MIN, 1.5);
+  setMark("pinchMax", cfg.PINCH_MAX, 1.5);
+  setMark("beakMark", cfg.BEAK_CLUSTER_MAX, 1.0);
+}
+
+function applyI18n() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach((e) => {
+    e.textContent = t(e.dataset.i18n);
+  });
+  buildSettings();
+  buildGestureList(lastGesture);
+  renderSubline();
+  // badge / gestureName / gestureDesc keyingi poll tick'da yangilanadi (200ms)
+}
+
+function renderSubline() {
+  el("subline").textContent = t("subtitle") + (lastFps ? " · " + lastFps + " FPS" : "");
 }
 
 async function poll() {
   try {
     const s = await window.pywebview.api.get_state();
+    lastGesture = s.gesture || null;
+    lastFps = s.fps || lastFps;
 
     const badge = el("badge");
-    if (s.state === "active") { badge.className = "badge active"; badge.textContent = "FAOL"; }
-    else { badge.className = "badge standby"; badge.textContent = "KUTISH"; }
+    if (s.state === "active") { badge.className = "badge active"; badge.textContent = t("active"); }
+    else { badge.className = "badge standby"; badge.textContent = t("standby"); }
 
-    const g = s.gesture && GESTURES[s.gesture];
-    el("gestureName").textContent = g ? g.t : (s.hand ? "Aniqlanmadi" : "—");
-    el("gestureDesc").textContent = g ? g.d : (s.hand ? "Qo'l ko'rinmoqda" : "Qo'l kutilmoqda...");
-    buildGestureList(s.gesture);
+    const g = s.gesture && gtext(s.gesture);
+    el("gestureName").textContent = g ? g.t : (s.hand ? t("notDetected") : "—");
+    el("gestureDesc").textContent = g ? g.d : (s.hand ? t("handVisible") : t("waitingHand"));
+    buildGestureList(lastGesture);
 
     if (typeof s.volume === "number") {
       el("volFill").style.width = (s.volume * 100).toFixed(0) + "%";
       el("volNum").textContent = (s.volume * 100).toFixed(0) + "%";
     }
     el("muteTag").className = "mute-tag" + (s.muted ? " on" : "");
-    if (s.fps) el("subline").textContent = "Qo'l ishoralari bilan audio boshqaruv · " + s.fps + " FPS";
+    renderSubline();
 
     const m = [["pinch", 1.5], ["beak", 1.0], ["spread", 1.0]];
     for (const [k, max] of m) {
@@ -402,12 +599,19 @@ function setPolling(on) {
 
 async function init() {
   cfg = await window.pywebview.api.get_config();
-  buildSettings();
-  setMark("pinchMin", cfg.PINCH_MIN, 1.5);
-  setMark("pinchMax", cfg.PINCH_MAX, 1.5);
-  setMark("beakMark", cfg.BEAK_CLUSTER_MAX, 1.0);
-  buildGestureList(null);
-  setPolling(true);  // oyna ochiq holda yuklandi; yashirilganda Python o'chiradi
+  lang = await window.pywebview.api.get_language();
+  if (!I18N[lang]) lang = "uz";
+  el("langSel").value = lang;
+  applyI18n();
+  refreshMarks();
+  setPolling(true);
+
+  el("langSel").addEventListener("change", async (e) => {
+    lang = await window.pywebview.api.set_language(e.target.value);
+    if (!I18N[lang]) lang = "uz";
+    applyI18n();
+    refreshMarks();
+  });
 
   const chk = el("autostartChk");
   chk.checked = await window.pywebview.api.get_autostart();
@@ -417,11 +621,9 @@ async function init() {
 
   el("btnSave").addEventListener("click", async () => {
     const values = {};
-    for (const s of SETTINGS) values[s.k] = +el("in_" + s.k).value;
+    for (const k of SKEYS) values[k] = +el("in_" + k).value;
     cfg = await window.pywebview.api.set_config(values);
-    setMark("pinchMin", cfg.PINCH_MIN, 1.5);
-    setMark("pinchMax", cfg.PINCH_MAX, 1.5);
-    setMark("beakMark", cfg.BEAK_CLUSTER_MAX, 1.0);
+    refreshMarks();
     const note = el("saveNote");
     note.classList.add("show");
     setTimeout(() => note.classList.remove("show"), 2000);
@@ -430,9 +632,7 @@ async function init() {
   el("btnReset").addEventListener("click", async () => {
     cfg = await window.pywebview.api.reset_config();
     buildSettings();
-    setMark("pinchMin", cfg.PINCH_MIN, 1.5);
-    setMark("pinchMax", cfg.PINCH_MAX, 1.5);
-    setMark("beakMark", cfg.BEAK_CLUSTER_MAX, 1.0);
+    refreshMarks();
   });
 
   el("btnQuit").addEventListener("click", () => {
