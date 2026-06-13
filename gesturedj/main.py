@@ -24,14 +24,29 @@ LOG_DIR = app_dir() / "logs"
 
 def _setup_logging() -> None:
     LOG_DIR.mkdir(exist_ok=True)
-    file_handler = logging.handlers.RotatingFileHandler(
-        LOG_DIR / "gesturedj.log", maxBytes=500_000, backupCount=2, encoding="utf-8"
-    )
+    handlers: list[logging.Handler] = [
+        logging.handlers.RotatingFileHandler(
+            LOG_DIR / "gesturedj.log", maxBytes=500_000, backupCount=2, encoding="utf-8"
+        )
+    ]
+    # --noconsole exe'da sys.stderr = None bo'ladi; StreamHandler faqat
+    # konsol mavjud bo'lganda qo'shiladi (aks holda emit xato beradi)
+    if sys.stderr is not None:
+        handlers.append(logging.StreamHandler())
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-        handlers=[file_handler, logging.StreamHandler()],
+        handlers=handlers,
     )
+
+
+def _hard_exit(code: int = 0) -> None:
+    """Jarayonni kafolatli tugatadi. WebView2/pystray osilib qolsa ham ishlaydi."""
+    try:
+        logging.shutdown()
+    except Exception:
+        pass
+    os._exit(code)
 
 
 def main() -> None:
@@ -46,9 +61,24 @@ def main() -> None:
     worker.start()
 
     def quit_app():
+        """Tray 'Chiqish' (yoki oyna ichidan chiqish). Kafolatli tugatadi.
+
+        Toza teardown (ui.destroy -> webview.start qaytishi) exe'da ba'zan
+        WebView2 bilan osilib qoladi, shuning uchun watchdog qo'yamiz: 1.5s
+        ichida toza chiqmasa, jarayonni majburan o'ldiramiz.
+        """
+        log.info("Chiqish so'raldi")
         app.stop_event.set()
+        threading.Timer(1.5, _hard_exit).start()  # osilib qolsa - majburan
+        try:
+            icon.stop()
+        except Exception:
+            pass
         if not no_ui:
-            ui.destroy()  # webview siklini tugatadi -> main davom etadi
+            try:
+                ui.destroy()  # webview siklini tugatadi -> main davom etadi
+            except Exception:
+                _hard_exit()
 
     def on_settings():
         if no_ui:
@@ -63,18 +93,14 @@ def main() -> None:
             icon.run()  # asosiy thread'da bloklanadi, webview yaratilmaydi
         else:
             icon.run_detached()
-            ui.run(app)  # bloklanadi; quit_app yoki oyna destroy bo'lganda qaytadi
-            icon.stop()
+            ui.run(app, on_quit=quit_app)  # bloklanadi; quit_app/destroy qaytaradi
     except KeyboardInterrupt:
         log.info("Ctrl+C qabul qilindi")
+        app.stop_event.set()
 
-    app.stop_event.set()
-    worker.join(timeout=3)
+    worker.join(timeout=2)
     log.info("GestureDJ to'xtadi")
-    # WebView2/pystray ortda non-daemon thread qoldirishi mumkin -
-    # toza log'dan keyin jarayonni kafolatli tugatamiz
-    logging.shutdown()
-    os._exit(0)
+    _hard_exit(0)
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ HTML_PATH = resource_dir() / "gesturedj" / "web" / "index.html"
 
 _window: webview.Window | None = None
 _quitting = False  # True bo'lsa closing handler yopishga ruxsat beradi
+_on_quit = None    # ilovani to'liq yopish uchun callback (main beradi)
 
 
 class Api:
@@ -27,6 +28,12 @@ class Api:
 
     def __init__(self, app: GestureApp):
         self._app = app
+
+    def quit_app(self) -> None:
+        """Oyna ichidagi 'Chiqish' tugmasi -> ilovani to'liq yopadi."""
+        log.info("Chiqish oynadan so'raldi")
+        if _on_quit is not None:
+            _on_quit()
 
     def get_state(self) -> dict:
         return dict(self._app.metrics)
@@ -73,9 +80,10 @@ def _on_closing():
     return False  # yopishni bekor qilish
 
 
-def run(app: GestureApp) -> None:
+def run(app: GestureApp, on_quit=None) -> None:
     """Asosiy thread'da bloklanib ishlaydi; destroy() chaqirilganda qaytadi."""
-    global _window
+    global _window, _on_quit
+    _on_quit = on_quit
     _window = webview.create_window(
         "GestureDJ — Sozlamalar",
         url=str(HTML_PATH),
@@ -84,7 +92,7 @@ def run(app: GestureApp) -> None:
         height=720,
         min_size=(720, 560),
         hidden=True,
-        background_color="#0F0F23",
+        background_color="#14122E",
     )
     _window.events.closing += _on_closing
     webview.start()
