@@ -18,11 +18,15 @@ dist/
 *.spec
 
 # ---- Runtime-generated files (yuklab olinadi / yaratiladi) ----
-models/              # hand_landmarker.task birinchi ishga tushishda yuklanadi
-logs/                # diagnostika loglari
-config.json          # foydalanuvchi sozlamalari
-config.tmp           # config'ning atomik yozuvi (vaqtinchalik)
-*.part               # tugallanmagan yuklamalar
+# (gitignore inline izohни qo'llab-quvvatlamaydi - izohlar alohida qatorda)
+# models/  - hand_landmarker.task birinchi ishga tushishda yuklanadi
+# logs/    - diagnostika loglari
+# config   - foydalanuvchi sozlamalari va atomik vaqtinchalik fayllar
+models/
+logs/
+config.json
+config.tmp
+*.part
 
 # ---- Release artifacts ----
 *.zip
