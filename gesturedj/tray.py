@@ -1,30 +1,45 @@
-"""Tizim tray ikonkasi (pystray)."""
+"""Tizim tray ikonkasi (pystray) — GestureDJ brend logosi bilan."""
 
-import pystray
-from PIL import Image, ImageDraw
+import logging
+
+from PIL import Image
 
 from .app import ACTIVE, GestureApp
+from .paths import resource_dir
+
+log = logging.getLogger(__name__)
+
+_LOGO_DIR = resource_dir() / "assets" / "logo"
 
 
-def _make_icon(active: bool) -> Image.Image:
-    """Oddiy dumaloq ikonka: yashil = faol, kulrang = kutish."""
-    img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    color = (46, 204, 113, 255) if active else (130, 130, 130, 255)
-    d.ellipse((4, 4, 60, 60), fill=color)
-    d.text((18, 18), "DJ", fill=(255, 255, 255, 255))
-    return img
+def _load_logo() -> Image.Image:
+    img = Image.open(_LOGO_DIR / "gesturedj-mark-64.png").convert("RGBA")
+    return img.resize((64, 64), Image.LANCZOS) if img.size != (64, 64) else img
 
 
-def create_icon(app: GestureApp, on_settings, on_quit) -> pystray.Icon:
-    """Tray ikonkasini yaratadi (ishga tushirish chaqiruvchining zimmasida)."""
+def _icon_for(active: bool, base: Image.Image) -> Image.Image:
+    """Faol = to'liq logo; kutish = biroz xira (holatni tray'da bilish uchun)."""
+    if active:
+        return base
+    faded = base.copy()
+    alpha = faded.getchannel("A").point(lambda a: int(a * 0.55))
+    faded.putalpha(alpha)
+    return faded
+
+
+def create_icon(app: GestureApp, on_settings, on_quit) -> "pystray.Icon":
+    import pystray
+
+    base = _load_logo()
+    active_icon = _icon_for(True, base)
+    standby_icon = _icon_for(False, base)
 
     def toggle_preview(icon, item):
         app.show_preview = not app.show_preview
 
     icon = pystray.Icon(
         "GestureDJ",
-        icon=_make_icon(False),
+        icon=standby_icon,
         title="GestureDJ - kutish rejimi",
         menu=pystray.Menu(
             pystray.MenuItem("Sozlamalar", lambda icon, item: on_settings(), default=True),
@@ -39,7 +54,7 @@ def create_icon(app: GestureApp, on_settings, on_quit) -> pystray.Icon:
 
     def on_state_change(state: str) -> None:
         active = state == ACTIVE
-        icon.icon = _make_icon(active)
+        icon.icon = active_icon if active else standby_icon
         icon.title = "GestureDJ - FAOL" if active else "GestureDJ - kutish rejimi"
 
     app.on_state_change = on_state_change

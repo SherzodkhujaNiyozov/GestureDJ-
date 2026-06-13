@@ -1,8 +1,13 @@
+<img src="assets/logo/gesturedj-mark-128.png" align="left" width="84" height="84" alt="GestureDJ logo">
+
 # GestureDJ
 
 > Control your PC's audio with hand gestures — webcam + MediaPipe, lives in
 > the Windows system tray. Pinch to set volume, fist to play/pause, beak to
 > mute. 100% local, no external APIs.
+
+<br clear="left">
+
 
 Qo'l ishoralari bilan Windows tizim ovozini boshqaruvchi desktop ilova.
 Webcam orqali qo'lingizni kuzatadi (MediaPipe), tizim tray'ida ishlaydi.
@@ -68,6 +73,7 @@ Loglar `logs/gesturedj.log` faylida.
 .\.venv\Scripts\pyinstaller --noconfirm --noconsole --name GestureDJ `
   --icon assets\icon.ico --collect-all mediapipe `
   --add-data "gesturedj\web;gesturedj\web" --add-data "models;models" `
+  --add-data "assets\logo;assets\logo" `
   run.py
 ```
 

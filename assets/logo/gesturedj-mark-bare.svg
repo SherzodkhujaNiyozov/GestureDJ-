@@ -1,0 +1,11 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GestureDJ">
+  <g stroke="#6366F1" stroke-width="54" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M146 182 Q214 190 268 224"></path>
+    <path d="M146 330 Q214 322 268 288"></path>
+  </g>
+  <g stroke="#22C55E" stroke-width="32" stroke-linecap="round" fill="none">
+    <path d="M316 206 A70 70 0 0 1 316 306"></path>
+    <path d="M344 174 A110 110 0 0 1 344 338"></path>
+    <path d="M372 144 A150 150 0 0 1 372 368"></path>
+  </g>
+</svg>
